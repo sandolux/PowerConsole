@@ -7,6 +7,7 @@ import { Toolbar } from './Toolbar';
 import { CodeCard } from './CodeCard';
 import { EmptyState } from './EmptyState';
 import { Toast } from '../../utils/Toast';
+import { Check as CheckIcon } from 'lucide-react'; // Importar CheckIcon
 
 interface LabelViewerProps {
   onInjectCodes?: (codes: string[]) => void;
@@ -93,12 +94,28 @@ export const LabelViewer: React.FC<LabelViewerProps> = ({ onInjectCodes, onClose
         clearGallery={clearGallery}
         filters={filters}
         toggleFilter={toggleFilter}
-        onInjectCodes={context === 'modal' ? handleUseCodes : undefined} // Solo pasar onInjectCodes si el contexto es modal
-        selectedFileCount={selectedFiles.size}
+        selectedFileCount={selectedFiles.size} // Pasar selectedFileCount
         totalFileCount={files.length}
         toggleSelectAll={toggleSelectAll}
-        context={context}
       />
+
+      {/* NUEVO CONTENEDOR DE ACCIÓN: Solo para el contexto Modal */}
+      {context === 'modal' && (
+        <div className="flex justify-end items-center p-4 border-b dark:border-gray-700">
+          <button
+            onClick={handleUseCodes}
+            className={`
+              bg-green-600 text-white px-4 py-2 text-sm font-semibold rounded-lg transition-colors
+              ${selectedFiles.size === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-700'}
+            `}
+            disabled={selectedFiles.size === 0}
+          >
+            <span className="flex items-center justify-center whitespace-nowrap">
+              <CheckIcon size={16} className="inline mr-1" /> Usar Códigos ({selectedFiles.size})
+            </span>
+          </button>
+        </div>
+      )}
 
       <div className="flex-1 p-4 overflow-y-auto">
         {isLoading && <p className="text-center text-gray-500 dark:text-gray-400">Cargando archivos...</p>}
