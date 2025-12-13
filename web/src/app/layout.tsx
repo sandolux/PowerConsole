@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 // Importamos nuestro Proveedor de Dependencias
 import { DiProvider } from "../presentation/context/DiContext";
+import { ThemeProvider } from "../presentation/providers/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,11 +18,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body className={inter.className}>
-        {/* Envolvemos la app con el Provider */}
+    <html lang="es" suppressHydrationWarning>
+      <body className={`${inter.className} bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased`}>
         <DiProvider>
-          {children}
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
         </DiProvider>
       </body>
     </html>

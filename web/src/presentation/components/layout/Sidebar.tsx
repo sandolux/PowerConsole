@@ -1,79 +1,154 @@
-import Link from 'next/link';
-import { 
-  LayoutGrid, 
-  Settings, 
-  Box, 
-  Terminal, 
-  FileCode, 
-  History,
-  Database
-} from 'lucide-react';
+"use client";
 
-export function Sidebar() {
+import Link from "next/link";
+import {
+  Home,
+  Settings,
+  PieChart,
+  Database,
+  FileCode,
+  Terminal,
+  Clock,
+  Layers,
+} from "lucide-react";
+
+type SidebarContext = "dashboard" | "workspace";
+
+interface SidebarProps {
+  context?: SidebarContext;
+  workspaceId?: string;
+  currentSection?: string;
+  onNavigate?: (section: string) => void;
+}
+
+const baseLink =
+  "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors";
+const inactive =
+  "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800";
+const active =
+  "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-300";
+
+export const Sidebar = ({
+  context = "dashboard",
+  workspaceId,
+  currentSection,
+  onNavigate,
+}: SidebarProps) => {
+  const isWorkspace = context === "workspace" && workspaceId;
+
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-slate-900 text-slate-300 flex flex-col border-r border-slate-800 z-50">
-      {/* Logo Area */}
-      <div className="h-16 flex items-center px-6 border-b border-slate-800">
-        <div className="flex items-center gap-3 text-white font-bold text-lg tracking-tight">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <Terminal size={18} className="text-white" />
-          </div>
+    <aside className="w-64 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 fixed left-0 top-0 flex flex-col">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+        <Link
+          href="/"
+          className="text-lg font-bold text-gray-900 dark:text-gray-100"
+        >
           PowerConsole
-        </div>
+        </Link>
       </div>
 
-      {/* Main Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-8 overflow-y-auto">
-        
-        {/* Section: General */}
-        <div>
-          <h3 className="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-            Plataforma
-          </h3>
-          <ul className="space-y-1">
-            <li>
-              <Link href="/" className="flex items-center gap-3 px-3 py-2 rounded-lg bg-indigo-500/10 text-indigo-400 font-medium">
-                <LayoutGrid size={18} />
-                Workspaces
-              </Link>
-            </li>
-            <li>
-              <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800/50 text-slate-400 hover:text-slate-200 transition-colors">
-                <Settings size={18} />
-                Configuración Global
-              </button>
-            </li>
-          </ul>
-        </div>
+      <nav className="flex-1 p-4 space-y-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+        {!isWorkspace && (
+          <>
+            <Link
+              href="/"
+              className={`${baseLink} ${inactive}`}
+            >
+              <Home size={16} />
+              Mis Workspaces
+            </Link>
+            <Link
+              href="/settings"
+              className={`${baseLink} ${inactive}`}
+            >
+              <Settings size={16} />
+              Configuración Global
+            </Link>
+          </>
+        )}
 
-        {/* Section: Context (Simulado por ahora, se activará al entrar a un workspace) */}
-        <div>
-          <h3 className="px-2 text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2 flex items-center justify-between">
-            Workspace Activo
-            <span className="w-2 h-2 rounded-full bg-slate-700"></span>
-          </h3>
-          <div className="px-3 py-4 border border-dashed border-slate-800 rounded-lg text-center">
-            <p className="text-xs text-slate-500">Selecciona un proyecto</p>
-          </div>
-          {/* Aquí inyectaremos dinámicamente:
-            - <Database /> Perfiles
-            - <FileCode /> Templates
-            - <Box /> Runners
-            - <History /> Historial
-          */}
-        </div>
+        {isWorkspace && (
+          <>
+            <Link
+              href="/"
+              className={`${baseLink} ${inactive}`}
+            >
+              <Home size={16} />
+              Dashboard
+            </Link>
+            <div className="px-3 pt-4 pb-1 text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+              Proyecto Actual
+            </div>
+            <button
+              onClick={() => onNavigate?.("summary")}
+              className={`${baseLink} ${
+                currentSection === "summary" ? active : inactive
+              }`}
+            >
+              <PieChart size={16} />
+              Resumen / Stats
+            </button>
+            <button
+              onClick={() => onNavigate?.("profiles")}
+              className={`${baseLink} ${
+                currentSection === "profiles" ? active : inactive
+              }`}
+            >
+              <Database size={16} />
+              Perfiles de Conexión
+            </button>
+            <button
+              onClick={() => onNavigate?.("variables")}
+              className={`${baseLink} ${
+                currentSection === "variables" ? active : inactive
+              }`}
+            >
+              <Layers size={16} />
+              Variables
+            </button>
+            <button
+              onClick={() => onNavigate?.("templates")}
+              className={`${baseLink} ${
+                currentSection === "templates" ? active : inactive
+              }`}
+            >
+              <FileCode size={16} />
+              Templates
+            </button>
+            <button
+              onClick={() => onNavigate?.("runner")}
+              className={`${baseLink} ${
+                currentSection === "runner" ? active : inactive
+              }`}
+            >
+              <Terminal size={16} />
+              SQL Runner
+            </button>
+            <button
+              onClick={() => onNavigate?.("logs")}
+              className={`${baseLink} ${
+                currentSection === "logs" ? active : inactive
+              }`}
+            >
+              <Clock size={16} />
+              Historial / Logs
+            </button>
+            <button
+              onClick={() => onNavigate?.("settings")}
+              className={`${baseLink} ${
+                currentSection === "settings" ? active : inactive
+              }`}
+            >
+              <Settings size={16} />
+              Configuración
+            </button>
+          </>
+        )}
       </nav>
 
-      {/* Footer User Profile */}
-      <div className="p-4 border-t border-slate-800">
-        <div className="flex items-center gap-3 px-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500"></div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">Developer</p>
-            <p className="text-xs text-slate-500 truncate">Admin Mode</p>
-          </div>
-        </div>
+      <div className="p-4 border-t border-gray-200 dark:border-gray-800 text-xs text-gray-500 dark:text-gray-400">
+        v0.1.0
       </div>
     </aside>
   );
-}
+};
