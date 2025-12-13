@@ -4,6 +4,7 @@ import { Profile } from '../../core/domain/entities/Profile';
 import { ScriptTemplate } from '../../core/domain/entities/ScriptTemplate';
 import { ExecutionLog } from '../../core/domain/entities/ExecutionLog';
 import { WorkspaceVariable } from '../../core/domain/entities/WorkspaceVariable';
+import { User } from '../../core/domain/entities/User';
 
 export class PowerConsoleDB extends Dexie {
   // Declare tables, mapping them to the domain entity interfaces
@@ -12,15 +13,17 @@ export class PowerConsoleDB extends Dexie {
   scriptTemplates!: Table<ScriptTemplate, string>;
   executionLogs!: Table<ExecutionLog, string>;
   variables!: Table<WorkspaceVariable, string>;
+  users!: Table<User, string>;
 
   constructor() {
     super('PowerConsoleDB');
-    this.version(3).stores({
+    this.version(4).stores({
       workspaces: 'id, name', // Primary key 'id', index 'name'
       profiles: 'id, workspaceId, type', // Primary key 'id', compound indexes possible
       scriptTemplates: '++id, workspaceId',
       executionLogs: 'id, workspaceId, timestamp, runnerType',
       variables: '++id, workspaceId, key',
+      users: 'id, username, email',
     });
   }
 }

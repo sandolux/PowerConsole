@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { useWorkspaceDetail } from "@/presentation/hooks/useWorkspaceDetail";
 import { ProfileList } from "@/presentation/components/profiles/ProfileList";
-import { VariableList } from "@/presentation/components/variables/VariableList";
 import { SqlRunner } from "@/presentation/components/runner/SqlRunner";
 import { TemplateList } from "@/presentation/components/templates/TemplateList";
-import { BackupPanel } from "@/presentation/components/settings/BackupPanel";
 import { DashboardStats } from "@/presentation/components/stats/DashboardStats";
+import { SettingsPanel } from "@/presentation/components/settings/SettingsPanel";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -18,7 +17,7 @@ export default function WorkspaceDetailPage() {
   const id = params.id as string;
   const { workspace, loading, error } = useWorkspaceDetail(id);
   const [activeSection, setActiveSection] = useState<
-    "profiles" | "variables" | "templates" | "runner" | "settings" | "summary" | "logs"
+    "profiles" | "templates" | "runner" | "settings" | "summary" | "logs"
   >("summary");
 
   if (loading) {
@@ -68,7 +67,6 @@ export default function WorkspaceDetailPage() {
             {[
               { id: "summary", label: "Resumen / Stats" },
               { id: "profiles", label: "Perfiles" },
-              { id: "variables", label: "Variables" },
               { id: "templates", label: "Templates" },
               { id: "runner", label: "SQL Runner" },
               { id: "logs", label: "Historial / Logs" },
@@ -90,10 +88,9 @@ export default function WorkspaceDetailPage() {
 
           <div className="mt-4 bg-gray-50 dark:bg-gray-950">
             {activeSection === "profiles" && <ProfileList workspaceId={id} />}
-            {activeSection === "variables" && <VariableList workspaceId={id} />}
             {activeSection === "templates" && <TemplateList workspaceId={id} />}
             {activeSection === "runner" && <SqlRunner workspaceId={id} />}
-            {activeSection === "settings" && <BackupPanel workspaceId={id} />}
+            {activeSection === "settings" && <SettingsPanel workspaceId={id} />}
             {activeSection === "summary" && <DashboardStats workspaceId={id} />}
             {activeSection === "logs" && (
               <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm" id="logs">

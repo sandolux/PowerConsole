@@ -1,12 +1,19 @@
 import { Profile } from "@/core/domain/entities/Profile";
 import { Database, Globe, Pencil } from "lucide-react";
+import { VariableResolverService } from "@/core/services/VariableResolverService";
 
 interface ProfileCardProps {
   profile: Profile;
   onEdit: (profile: Profile) => void;
+  variableResolver: VariableResolverService;
+  variableMap: Record<string, string>;
 }
 
-export const ProfileCard = ({ profile, onEdit }: ProfileCardProps) => {
+export const ProfileCard = ({ profile, onEdit, variableResolver, variableMap }: ProfileCardProps) => {
+  const resolvedHost = variableResolver.resolve(profile.host || "", variableMap);
+  const resolvedDb = variableResolver.resolve(profile.database || "", variableMap);
+  const resolvedApi = variableResolver.resolve(profile.apiBaseUrl || "", variableMap);
+
   return (
     <div className="p-5 rounded-xl border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300 relative">
       <button
@@ -30,11 +37,11 @@ export const ProfileCard = ({ profile, onEdit }: ProfileCardProps) => {
           </h3>
           {profile.type === "sql" ? (
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
-              Server: {profile.host} - DB: {profile.database}
+              Server: {resolvedHost} - DB: {resolvedDb}
             </p>
           ) : (
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
-              URL: {profile.apiBaseUrl}
+              URL: {resolvedApi}
             </p>
           )}
         </div>

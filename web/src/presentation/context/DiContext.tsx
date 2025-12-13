@@ -12,6 +12,10 @@ import { SqlParserService } from '@/core/services/SqlParserService';
 import { ICryptoService } from '../../core/repositories/ICryptoService';
 import { IExecutionLogRepository } from '../../core/repositories/IExecutionLogRepository';
 import { DeleteLogUseCase } from '@/core/use-cases/logs/DeleteLogUseCase';
+import { LoginUserUseCase } from '@/core/use-cases/auth/LoginUserUseCase';
+import { CreateUserUseCase } from '@/core/use-cases/auth/CreateUserUseCase';
+import { IUserRepository } from '@/core/repositories/IUserRepository';
+import { IPasswordHasher } from '@/core/domain/services/IPasswordHasher';
 
 // 2. Import Implementations (Adapters from Infrastructure)
 import { DexieWorkspaceRepository } from '../../infrastructure/repositories/DexieWorkspaceRepository';
@@ -25,6 +29,9 @@ import { BackupService } from '@/core/services/BackupService';
 import { ExportWorkspaceUseCase } from '@/core/use-cases/backup/ExportWorkspaceUseCase';
 import { ImportWorkspaceUseCase } from '@/core/use-cases/backup/ImportWorkspaceUseCase';
 import { GetWorkspaceStatsUseCase } from '@/core/use-cases/stats/GetWorkspaceStatsUseCase';
+import { SimplePasswordHasher } from '@/infrastructure/services/SimplePasswordHasher';
+import { DexieUserRepository } from '@/infrastructure/repositories/DexieUserRepository';
+import { VariableResolverService } from '@/core/services/VariableResolverService';
 
 // 3. Define the shape of the dependencies object
 export interface AppDependencies {
@@ -32,8 +39,11 @@ export interface AppDependencies {
   profileRepo: IProfileRepository;
   templateRepo: IScriptTemplateRepository;
   variableRepo: IVariableRepository;
+  userRepo: IUserRepository;
   cryptoService: ICryptoService;
+  passwordHasher: IPasswordHasher;
   scriptGenerator: IScriptGenerator;
+  variableResolver: VariableResolverService;
   sqlParser: SqlParserService;
   executionLogRepo: IExecutionLogRepository;
   deleteLogUseCase: DeleteLogUseCase;
@@ -41,6 +51,8 @@ export interface AppDependencies {
   exportWorkspaceUseCase: ExportWorkspaceUseCase;
   importWorkspaceUseCase: ImportWorkspaceUseCase;
   getWorkspaceStatsUseCase: GetWorkspaceStatsUseCase;
+  loginUserUseCase: LoginUserUseCase;
+  createUserUseCase: CreateUserUseCase;
 }
 
 // 4. Instantiate concrete implementations to be injected
@@ -49,6 +61,8 @@ const workspaceRepoInstance = new DexieWorkspaceRepository();
 const profileRepoInstance = new DexieProfileRepository();
 const templateRepoInstance = new DexieScriptTemplateRepository();
 const variableRepoInstance = new DexieVariableRepository();
+const userRepoInstance = new DexieUserRepository();
+const passwordHasherInstance = new SimplePasswordHasher();
 const backupServiceInstance = new BackupService(
   workspaceRepoInstance,
   profileRepoInstance,
@@ -62,8 +76,11 @@ const appDependencies: AppDependencies = {
   profileRepo: profileRepoInstance,
   templateRepo: templateRepoInstance,
   variableRepo: variableRepoInstance,
+  userRepo: userRepoInstance,
   cryptoService: new SimpleCryptoService(),
+  passwordHasher: passwordHasherInstance,
   scriptGenerator: new SqlScriptGeneratorService(),
+  variableResolver: new VariableResolverService(),
   sqlParser: new SqlParserService(),
   executionLogRepo: executionLogRepoInstance,
   deleteLogUseCase: new DeleteLogUseCase(executionLogRepoInstance),
@@ -76,6 +93,8 @@ const appDependencies: AppDependencies = {
     profileRepoInstance,
     variableRepoInstance
   ),
+  loginUserUseCase: new LoginUserUseCase(userRepoInstance, passwordHasherInstance),
+  createUserUseCase: new CreateUserUseCase(userRepoInstance),
 };
 
 // 5. Create the React Context

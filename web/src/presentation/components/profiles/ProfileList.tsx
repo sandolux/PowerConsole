@@ -6,9 +6,13 @@ import { Profile } from "@/core/domain/entities/Profile";
 import { ProfileCard } from "./ProfileCard";
 import { CreateProfileModal } from "./CreateProfileModal";
 import { Plus } from "lucide-react";
+import { useVariables } from "@/presentation/hooks/useVariables";
+import { useDi } from "@/presentation/context/DiContext";
 
 export const ProfileList = ({ workspaceId }: { workspaceId: string }) => {
   const { profiles, loading, error, reloadProfiles } = useProfiles(workspaceId);
+  const { variables } = useVariables(workspaceId);
+  const { variableResolver } = useDi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [profileToEdit, setProfileToEdit] = useState<Profile | null>(null);
 
@@ -34,6 +38,11 @@ export const ProfileList = ({ workspaceId }: { workspaceId: string }) => {
   if (error) {
     return <p className="text-red-500">{error}</p>;
   }
+
+  const variableMap = variables.reduce((acc, curr) => {
+    acc[curr.key] = curr.value;
+    return acc;
+  }, {} as Record<string, string>);
 
   return (
     <>
@@ -70,6 +79,8 @@ export const ProfileList = ({ workspaceId }: { workspaceId: string }) => {
                 key={profile.id}
                 profile={profile}
                 onEdit={handleEdit}
+                variableResolver={variableResolver}
+                variableMap={variableMap}
               />
             ))}
           </div>

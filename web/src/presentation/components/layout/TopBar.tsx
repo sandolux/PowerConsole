@@ -1,7 +1,7 @@
 "use client";
 
-import { ThemeToggle } from "@/presentation/components/ui/ThemeToggle";
 import { Search } from "lucide-react";
+import { UserMenuDropdown } from "./UserMenuDropdown";
 
 export const TopBar = () => {
   return (
@@ -18,8 +18,7 @@ export const TopBar = () => {
             className="pl-8 pr-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
           />
         </div>
-        <ThemeToggle />
-        <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <UserMenuDropdown />
       </div>
     </header>
   );
