@@ -28,8 +28,11 @@ export const VariableList = ({ workspaceId }: { workspaceId: string }) => {
   };
 
   return (
-    <div>
-      <div className="flex justify-end mb-4">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Variables del Workspace
+        </h3>
         <button
           onClick={() => handleOpenModal()}
           className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

@@ -1,10 +1,10 @@
-"use client";
-
 import { useEffect, useMemo, useState } from 'react';
 import { useSqlRunner } from '@/presentation/hooks/useSqlRunner';
 import { useProfiles } from '@/presentation/hooks/useProfiles';
-import { Clipboard, Play } from 'lucide-react';
+import { Clipboard, Play, ScanBarcode } from 'lucide-react'; // Añadir ScanBarcode
 import { CompactLogList } from '../logs/CompactLogList';
+import { Modal } from '../ui/Modal'; // Importar Modal
+import { LabelViewer } from '../tools/LabelViewer'; // Importar LabelViewer
 
 export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
   const {
@@ -30,6 +30,7 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
 
   const { profiles, loading: profilesLoading } = useProfiles(workspaceId);
   const [profileWarning, setProfileWarning] = useState<string | null>(null);
+  const [showLabelViewerModal, setShowLabelViewerModal] = useState(false); // Estado para el modal
 
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
   const contextParams = selectedTemplate?.parameters.filter((p) => !p.isBatchParam) ?? [];
@@ -69,6 +70,12 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
       setSelectedProfileId(allowedProfiles[0].id);
     }
   }, [allowedProfiles, selectedProfileId, setSelectedProfileId]);
+
+  const handleInjectCodes = (codes: string[]) => {
+    const newCodes = codes.join('\n');
+    setInputData((prev) => (prev ? `${prev}\n${newCodes}` : newCodes));
+    setShowLabelViewerModal(false);
+  };
 
   const inputClasses =
     "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-2 px-3 text-gray-900 dark:text-gray-100 shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6";
@@ -136,11 +143,20 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
         {/* Área 1: Input */}
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-2">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-2"> {/* mb-2 añadido para espacio */}
             <label htmlFor="input-data" className={labelClasses}>
-              Input Data (Codes/Params)
+              Input Data (Smart Import)
             </label>
-            <span className="text-xs text-gray-600 dark:text-gray-400">Ingresa valores para {batchParamName}</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowLabelViewerModal(true)}
+                className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                title="Importar códigos de barra desde Label Viewer"
+              >
+                <ScanBarcode className="w-4 h-4 mr-2" /> Importar Códigos
+              </button>
+              <span className="text-xs text-gray-600 dark:text-gray-400">Ingresa valores para {batchParamName}</span>
+            </div>
           </div>
           <textarea
             id="input-data"
@@ -246,6 +262,16 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
           reloadSignal={logReloadKey}
         />
       </div>
+
+      {/* Modal para LabelViewer */}
+      <Modal
+        isOpen={showLabelViewerModal}
+        onClose={() => setShowLabelViewerModal(false)}
+        title="Importar Códigos de Barra"
+        size="large" // Asegura que el modal sea grande para el LabelViewer
+      >
+        <LabelViewer onInjectCodes={handleInjectCodes} onClose={() => setShowLabelViewerModal(false)} />
+      </Modal>
     </div>
   );
 };

@@ -7,18 +7,19 @@ import { SqlRunner } from "@/presentation/components/runner/SqlRunner";
 import { TemplateList } from "@/presentation/components/templates/TemplateList";
 import { DashboardStats } from "@/presentation/components/stats/DashboardStats";
 import { SettingsPanel } from "@/presentation/components/settings/SettingsPanel";
+import { LabelViewer } from "@/presentation/components/tools/LabelViewer"; // Importar LabelViewer
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation"; // Importar useSearchParams
 import { AppLayout } from "@/presentation/components/layout/AppLayout";
 
 export default function WorkspaceDetailPage() {
   const params = useParams();
   const id = params.id as string;
   const { workspace, loading, error } = useWorkspaceDetail(id);
-  const [activeSection, setActiveSection] = useState<
-    "profiles" | "templates" | "runner" | "settings" | "summary" | "logs"
-  >("summary");
+  
+  const searchParams = useSearchParams();
+  const activeSection = searchParams.get("section") || "summary"; // Obtener 'section' de la URL, por defecto 'summary'
 
   if (loading) {
     return (
@@ -44,6 +45,32 @@ export default function WorkspaceDetailPage() {
     );
   }
 
+  // Función para renderizar el componente activo
+  const renderActiveSection = () => {
+    switch (activeSection) {
+      case "profiles":
+        return <ProfileList workspaceId={id} />;
+      case "templates":
+        return <TemplateList workspaceId={id} />;
+      case "runner":
+        return <SqlRunner workspaceId={id} />;
+      case "settings":
+        return <SettingsPanel workspaceId={id} />;
+      case "summary":
+        return <DashboardStats workspaceId={id} />;
+      case "logs":
+        return (
+          <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm" id="logs">
+            <p className="text-slate-500 dark:text-slate-400">Historial / Logs integrados dentro del Runner.</p>
+          </div>
+        );
+      case "label-viewer":
+        return <LabelViewer workspaceId={id} />;
+      default:
+        return <DashboardStats workspaceId={id} />;
+    }
+  };
+
   return (
     <AppLayout>
       <div className="bg-gray-50 dark:bg-gray-950 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
@@ -63,40 +90,8 @@ export default function WorkspaceDetailPage() {
         </header>
 
         <div className="mt-6 space-y-4">
-          <div className="flex flex-wrap gap-2 text-sm">
-            {[
-              { id: "summary", label: "Resumen / Stats" },
-              { id: "profiles", label: "Perfiles" },
-              { id: "templates", label: "Templates" },
-              { id: "runner", label: "SQL Runner" },
-              { id: "logs", label: "Historial / Logs" },
-              { id: "settings", label: "Settings" },
-            ].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveSection(item.id as any)}
-                className={`px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 transition ${
-                  activeSection === item.id
-                    ? "bg-indigo-600 text-white"
-                    : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
           <div className="mt-4 bg-gray-50 dark:bg-gray-950">
-            {activeSection === "profiles" && <ProfileList workspaceId={id} />}
-            {activeSection === "templates" && <TemplateList workspaceId={id} />}
-            {activeSection === "runner" && <SqlRunner workspaceId={id} />}
-            {activeSection === "settings" && <SettingsPanel workspaceId={id} />}
-            {activeSection === "summary" && <DashboardStats workspaceId={id} />}
-            {activeSection === "logs" && (
-              <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm" id="logs">
-                <p className="text-slate-500 dark:text-slate-400">Historial / Logs integrados dentro del Runner.</p>
-              </div>
-            )}
+            {renderActiveSection()}
           </div>
         </div>
       </div>

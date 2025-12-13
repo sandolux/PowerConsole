@@ -26,8 +26,8 @@ export const VariableCard = ({ variable, onEdit, onDelete }: VariableCardProps) 
           <Trash2 size={16} />
         </button>
       </div>
-      <p className="text-sm font-bold text-gray-900 dark:text-gray-100 font-mono pr-14">{variable.key}</p>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-3 break-words">{variable.value}</p>
+      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 font-mono pr-10">{variable.key}</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 line-clamp-3 break-words">{variable.value}</p>
     </div>
   );
 };
