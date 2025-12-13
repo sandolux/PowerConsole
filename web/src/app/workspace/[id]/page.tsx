@@ -9,6 +9,7 @@ import {
   TabsTrigger,
 } from "@/presentation/components/ui/Tabs";
 import { ProfileList } from "@/presentation/components/profiles/ProfileList";
+import { VariableList } from "@/presentation/components/variables/VariableList";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -59,11 +60,15 @@ export default function WorkspaceDetailPage() {
         <Tabs defaultValue="profiles">
           <TabsList>
             <TabsTrigger value="profiles">Perfiles de Conexión</TabsTrigger>
+            <TabsTrigger value="variables">Variables</TabsTrigger>
             <TabsTrigger value="sql-runner">SQL Runner</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
           </TabsList>
           <TabsContent value="profiles">
             <ProfileList workspaceId={id} />
+          </TabsContent>
+          <TabsContent value="variables">
+            <VariableList workspaceId={id} />
           </TabsContent>
           <TabsContent value="sql-runner">
             <div className="p-4 border-2 border-dashed border-slate-300 rounded-lg">

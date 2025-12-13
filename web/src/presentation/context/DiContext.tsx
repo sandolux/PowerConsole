@@ -6,12 +6,14 @@ import React, { createContext, useContext, ReactNode } from 'react';
 import { IWorkspaceRepository } from '../../core/repositories/IWorkspaceRepository';
 import { IProfileRepository } from '../../core/repositories/IProfileRepository';
 import { ITemplateRepository } from '../../core/repositories/ITemplateRepository';
+import { IVariableRepository } from '../../core/repositories/IVariableRepository';
 import { ICryptoService } from '../../core/repositories/ICryptoService';
 
 // 2. Import Implementations (Adapters from Infrastructure)
 import { DexieWorkspaceRepository } from '../../infrastructure/repositories/DexieWorkspaceRepository';
 import { DexieProfileRepository } from '../../infrastructure/repositories/DexieProfileRepository';
 import { DexieTemplateRepository } from '../../infrastructure/repositories/DexieTemplateRepository';
+import { DexieVariableRepository } from '../../infrastructure/repositories/DexieVariableRepository';
 import { SimpleCryptoService } from '../../infrastructure/repositories/SimpleCryptoService';
 
 // 3. Define the shape of the dependencies object
@@ -19,6 +21,7 @@ export interface AppDependencies {
   workspaceRepo: IWorkspaceRepository;
   profileRepo: IProfileRepository;
   templateRepo: ITemplateRepository;
+  variableRepo: IVariableRepository;
   cryptoService: ICryptoService;
 }
 
@@ -27,6 +30,7 @@ const appDependencies: AppDependencies = {
   workspaceRepo: new DexieWorkspaceRepository(),
   profileRepo: new DexieProfileRepository(),
   templateRepo: new DexieTemplateRepository(),
+  variableRepo: new DexieVariableRepository(),
   cryptoService: new SimpleCryptoService(),
 };
 
