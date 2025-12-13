@@ -6,9 +6,11 @@ import { GetTemplatesByWorkspaceUseCase } from '@/core/use-cases/templates/Manag
 import { GenerateScriptFromTemplateUseCase } from '@/core/use-cases/templates/GenerateScriptFromTemplateUseCase';
 import { ScriptTemplate } from '@/core/domain/entities/ScriptTemplate';
 import { useProfiles } from './useProfiles';
+import { ExecutionLog } from '@/core/domain/entities/ExecutionLog';
+import { LogExecutionUseCase } from '@/core/use-cases/logs/LogExecutionUseCase';
 
 export const useSqlRunner = (workspaceId: string) => {
-  const { scriptGenerator, templateRepo } = useDi();
+  const { scriptGenerator, templateRepo, executionLogRepo } = useDi();
   
   const [selectedProfileId, setSelectedProfileId] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
@@ -19,8 +21,12 @@ export const useSqlRunner = (workspaceId: string) => {
   const [useLoopMode, setUseLoopMode] = useState(false);
   const { profiles: allProfiles } = useProfiles(workspaceId);
   const [availableProfiles, setAvailableProfiles] = useState<typeof allProfiles>([]);
+  const [pendingContextValues, setPendingContextValues] = useState<Record<string, string | number | boolean> | null>(null);
+  const [logReloadKey, setLogReloadKey] = useState(0);
+  const [isRestoring, setIsRestoring] = useState(false);
 
   const getTemplatesUseCase = useMemo(() => new GetTemplatesByWorkspaceUseCase(templateRepo), [templateRepo]);
+  const logExecutionUseCase = useMemo(() => new LogExecutionUseCase(executionLogRepo), [executionLogRepo]);
 
   const reloadTemplates = useCallback(async () => {
     if (!workspaceId) return;
@@ -57,7 +63,14 @@ export const useSqlRunner = (workspaceId: string) => {
       .forEach(param => {
         initialContext[param.name] = param.defaultValue ?? (param.type === 'boolean' ? false : '');
       });
-    setContextValues(initialContext);
+
+    if (pendingContextValues) {
+      setContextValues(pendingContextValues);
+      setPendingContextValues(null);
+      setIsRestoring(false);
+    } else if (!isRestoring) {
+      setContextValues(initialContext);
+    }
 
     if (selectedTemplate.allowedProfileIds && selectedTemplate.allowedProfileIds.length > 0) {
       const filtered = allProfiles.filter(p => selectedTemplate.allowedProfileIds.includes(p.id));
@@ -104,13 +117,31 @@ export const useSqlRunner = (workspaceId: string) => {
     return () => clearTimeout(timeoutId);
   }, [handleGenerate, inputData, useLoopMode, contextValues, selectedProfileId, selectedTemplateId]);
 
-  const copyToClipboard = () => {
-    if (generatedScript) {
-      navigator.clipboard.writeText(generatedScript).then(() => {
-        console.log('Script copied to clipboard!');
-      }).catch(err => {
-        console.error('Failed to copy text: ', err);
-      });
+  const copyToClipboard = async () => {
+    if (!generatedScript) return;
+
+    try {
+      await navigator.clipboard.writeText(generatedScript);
+      const selectedProfile = allProfiles.find(p => p.id === selectedProfileId);
+      const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+
+      if (selectedProfile && selectedTemplate) {
+        await logExecutionUseCase.execute({
+          workspaceId,
+          runnerType: 'sql-runner',
+          status: 'SUCCESS',
+          durationMs: 0,
+          summary: `Copiado desde ${selectedTemplate.name}`,
+          scriptGenerated: generatedScript,
+          profileId: selectedProfile.id,
+          templateId: selectedTemplate.id,
+          rawInput: inputData,
+          contextValues,
+        });
+        setLogReloadKey(key => key + 1);
+      }
+    } catch (err) {
+      console.error('Failed to copy and log execution:', err);
     }
   };
 
@@ -130,5 +161,15 @@ export const useSqlRunner = (workspaceId: string) => {
     handleContextChange,
     setUseLoopMode,
     copyToClipboard,
+    restoreStateFromLog: (log: ExecutionLog) => {
+      setIsRestoring(true);
+      setSelectedProfileId(log.profileId);
+      setSelectedTemplateId(log.templateId);
+      setInputData(log.rawInput);
+      setContextValues((log.contextValues as Record<string, string | number | boolean>) || {});
+      setPendingContextValues((log.contextValues as Record<string, string | number | boolean>) || {});
+    },
+    reloadLogs: () => setLogReloadKey(key => key + 1),
+    logReloadKey,
   };
 };

@@ -3,6 +3,7 @@
 import { useSqlRunner } from '@/presentation/hooks/useSqlRunner';
 import { useProfiles } from '@/presentation/hooks/useProfiles';
 import { Clipboard, Play } from 'lucide-react';
+import { CompactLogList } from '../logs/CompactLogList';
 
 export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
   const {
@@ -21,6 +22,8 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
     handleContextChange,
     setUseLoopMode,
     copyToClipboard,
+    restoreStateFromLog,
+    logReloadKey,
   } = useSqlRunner(workspaceId);
 
   const { profiles, loading: profilesLoading } = useProfiles(workspaceId);
@@ -36,7 +39,7 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
   const labelClasses = "block text-sm font-medium text-slate-700 mb-1";
   
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-4 h-full">
       {/* Top Bar */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -91,7 +94,7 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
       </div>
 
       {/* Main Area - 3-column responsive layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
         {/* Área 1: Input */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
@@ -193,6 +196,11 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
             <Play size={16} />
             Actualizar ahora
         </button>
+      </div>
+
+      <div className="border-t border-slate-200 pt-3">
+        <p className="text-xs uppercase tracking-wide text-slate-500 mb-2">Historial reciente</p>
+        <CompactLogList workspaceId={workspaceId} onRestore={restoreStateFromLog} reloadSignal={logReloadKey} />
       </div>
     </div>
   );

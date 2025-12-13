@@ -19,7 +19,7 @@ export class PowerConsoleDB extends Dexie {
       workspaces: 'id, name', // Primary key 'id', index 'name'
       profiles: 'id, workspaceId, type', // Primary key 'id', compound indexes possible
       scriptTemplates: '++id, workspaceId',
-      executionLogs: 'id, timestamp, runnerType',
+      executionLogs: 'id, workspaceId, timestamp, runnerType',
       variables: '++id, workspaceId, key',
     });
   }
