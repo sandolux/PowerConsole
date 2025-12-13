@@ -34,7 +34,8 @@ export const useWorkspaces = () => {
   const createWorkspace = async (
     name: string,
     description: string,
-    environments: WorkspaceEnvironment[]
+    environments: WorkspaceEnvironment[],
+    color?: string
   ): Promise<void> => {
     setLoading(true);
     setError(null);
@@ -45,6 +46,7 @@ export const useWorkspaces = () => {
         description,
         environments,
         createdAt: new Date(),
+        color,
       };
       await workspaceRepo.save(newWorkspace);
       await loadWorkspaces(); // Refresh the list from the source of truth

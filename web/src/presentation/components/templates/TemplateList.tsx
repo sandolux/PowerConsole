@@ -43,18 +43,18 @@ export const TemplateList = ({ workspaceId }: { workspaceId: string }) => {
       {!loading && !error && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map((template) => (
-            <div key={template.id} className="bg-white border border-slate-200 rounded-lg shadow-sm p-4 relative">
-                 <div className="absolute top-2 right-2 flex items-center gap-1">
-                    <button onClick={() => handleOpenModal(template)} className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-full hover:bg-indigo-50">
-                        <Pencil size={16} />
-                    </button>
-                    <button onClick={() => handleDelete(template.id)} className="p-1.5 text-slate-400 hover:text-red-600 rounded-full hover:bg-red-50">
-                        <Trash2 size={16} />
-                    </button>
-                </div>
-                <p className="font-semibold text-slate-800 pr-16">{template.name}</p>
-                <p className="text-sm text-slate-500 mt-2">{template.description}</p>
-                <p className="text-sm text-slate-500 font-mono">{template.spName}</p>
+            <div key={template.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.01] transition-all p-4 relative h-full">
+              <div className="absolute top-2 right-2 flex items-center gap-1">
+                <button onClick={() => handleOpenModal(template)} className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-full hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors">
+                  <Pencil size={16} />
+                </button>
+                <button onClick={() => handleDelete(template.id)} className="p-1.5 text-slate-400 hover:text-red-600 rounded-full hover:bg-red-50 dark:hover:bg-slate-800 transition-colors">
+                  <Trash2 size={16} />
+                </button>
+              </div>
+              <p className="font-semibold text-slate-800 dark:text-slate-100 pr-16">{template.name}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">{template.description}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-300 font-mono">{template.spName}</p>
             </div>
           ))}
            {templates.length === 0 && (

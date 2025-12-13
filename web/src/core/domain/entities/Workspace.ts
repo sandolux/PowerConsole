@@ -6,4 +6,5 @@ export interface Workspace {
   description: string;
   environments: WorkspaceEnvironment[];
   createdAt: Date;
+  color?: string;
 }

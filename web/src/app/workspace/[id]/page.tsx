@@ -2,25 +2,23 @@
 
 import { useState } from "react";
 import { useWorkspaceDetail } from "@/presentation/hooks/useWorkspaceDetail";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/presentation/components/ui/Tabs";
 import { ProfileList } from "@/presentation/components/profiles/ProfileList";
 import { VariableList } from "@/presentation/components/variables/VariableList";
 import { SqlRunner } from "@/presentation/components/runner/SqlRunner";
 import { TemplateList } from "@/presentation/components/templates/TemplateList";
 import { BackupPanel } from "@/presentation/components/settings/BackupPanel";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { useParams } from "next/navigation";
+import { AppLayout } from "@/presentation/components/layout/AppLayout";
 
 export default function WorkspaceDetailPage() {
   const params = useParams();
   const id = params.id as string;
   const { workspace, loading, error } = useWorkspaceDetail(id);
-  const [activeTab, setActiveTab] = useState("profiles");
+  const [activeSection, setActiveSection] = useState<
+    "profiles" | "variables" | "templates" | "runner" | "settings" | "summary" | "logs"
+  >("profiles");
 
   if (loading) {
     return (
@@ -47,52 +45,67 @@ export default function WorkspaceDetailPage() {
   }
 
   return (
-    <div className="bg-slate-50 p-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">
-          {workspace.name}
-        </h1>
-        <Link
-          href="/"
-          className="text-indigo-600 hover:text-indigo-800"
-        >
-          Volver
-        </Link>
-      </header>
-      <div className="mt-6">
-        <Tabs defaultValue="profiles">
-          <TabsList>
-            <TabsTrigger value="profiles">Perfiles de Conexión</TabsTrigger>
-            <TabsTrigger value="variables">Variables</TabsTrigger>
-            <TabsTrigger value="templates">Templates</TabsTrigger>
-            <TabsTrigger value="sql-runner">SQL Runner</TabsTrigger>
-            <TabsTrigger value="logs">Logs</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
-          <TabsContent value="profiles">
-            <ProfileList workspaceId={id} />
-          </TabsContent>
-          <TabsContent value="variables">
-            <VariableList workspaceId={id} />
-          </TabsContent>
-          <TabsContent value="templates">
-            <TemplateList workspaceId={id} />
-          </TabsContent>
-          <TabsContent value="sql-runner">
-            <SqlRunner workspaceId={id} />
-          </TabsContent>
-          <TabsContent value="logs">
-            <div className="p-4 border-2 border-dashed border-slate-300 rounded-lg">
-              <p className="text-slate-500">
-                Aquí irá el registro de logs y actividades.
-              </p>
-            </div>
-          </TabsContent>
-          <TabsContent value="settings">
-            <BackupPanel workspaceId={id} />
-          </TabsContent>
-        </Tabs>
+    <AppLayout>
+      <div className="bg-slate-50 dark:bg-gray-950 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+        <header className="flex items-center justify-between">
+          <div className="flex flex-col">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors mb-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Volver al Dashboard</span>
+            </Link>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {workspace.name}
+            </h1>
+          </div>
+        </header>
+
+        <div className="mt-6 space-y-4">
+          <div className="flex flex-wrap gap-2 text-sm">
+            {[
+              { id: "summary", label: "Resumen / Stats" },
+              { id: "profiles", label: "Perfiles" },
+              { id: "variables", label: "Variables" },
+              { id: "templates", label: "Templates" },
+              { id: "runner", label: "SQL Runner" },
+              { id: "logs", label: "Historial / Logs" },
+              { id: "settings", label: "Settings" },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id as any)}
+                className={`px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 transition ${
+                  activeSection === item.id
+                    ? "bg-indigo-600 text-white"
+                    : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-4">
+            {activeSection === "profiles" && <ProfileList workspaceId={id} />}
+            {activeSection === "variables" && <VariableList workspaceId={id} />}
+            {activeSection === "templates" && <TemplateList workspaceId={id} />}
+            {activeSection === "runner" && <SqlRunner workspaceId={id} />}
+            {activeSection === "settings" && <BackupPanel workspaceId={id} />}
+            {activeSection === "summary" && (
+              <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm">
+                <p className="text-slate-500 dark:text-slate-400">Resumen próximamente.</p>
+              </div>
+            )}
+            {activeSection === "logs" && (
+              <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm" id="logs">
+                <p className="text-slate-500 dark:text-slate-400">Historial / Logs integrados dentro del Runner.</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }
