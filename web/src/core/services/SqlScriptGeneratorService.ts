@@ -1,20 +1,30 @@
 import { IScriptGenerator } from '../domain/services/IScriptGenerator';
 import { ScriptTemplate, ScriptParameter } from '../domain/entities/ScriptTemplate';
+import { Profile } from '../domain/entities/Profile';
 
 export class SqlScriptGeneratorService implements IScriptGenerator {
   private static readonly INDENT = "\n\t";
+  private buildHeader(profile?: Profile): string {
+    const baseHeader = `-- Generado por PowerConsole el ${new Date().toLocaleString()}`;
+    if (profile && profile.type === 'sql' && profile.database) {
+      const profileInfo = `-- Entorno: ${profile.name} (Host: ${profile.host ?? 'N/A'})`;
+      return `${profileInfo}\nUSE [${profile.database}];\nGO\n\n${baseHeader}\n\n`;
+    }
+    return `${baseHeader}\n\n`;
+  }
 
   generate(
     template: ScriptTemplate,
     rawInput: string,
     contextValues: Record<string, string | number | boolean>,
-    useLoopMode: boolean = false
+    useLoopMode: boolean = false,
+    profile?: Profile
   ): string {
     if (!rawInput.trim()) {
       return '';
     }
 
-    const header = `-- Generado por PowerConsole el ${new Date().toLocaleString()}\n\n`;
+    const header = this.buildHeader(profile);
 
     const lines = rawInput
       .split('\n')
@@ -70,9 +80,9 @@ DEALLOCATE batch_cursor;`.trim();
         const paramAssignments = template.parameters.map((param: ScriptParameter, idx) => {
           const valueForParam = param.isBatchParam ? line : contextValues[param.name];
           const formattedValue = formatParamValue(param, valueForParam);
-        const suffix = idx === template.parameters.length - 1 ? ';' : ',';
-        return `${SqlScriptGeneratorService.INDENT}${param.name} = ${formattedValue}${suffix}`;
-      }).join('');
+          const suffix = idx === template.parameters.length - 1 ? ';' : ',';
+          return `${SqlScriptGeneratorService.INDENT}${param.name} = ${formattedValue}${suffix}`;
+        }).join('');
 
         return `EXEC ${template.spName}${paramAssignments}`;
       })

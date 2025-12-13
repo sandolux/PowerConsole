@@ -10,6 +10,7 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
     setSelectedProfileId,
     selectedTemplateId,
     setSelectedTemplateId,
+    availableProfiles,
     inputData,
     setInputData,
     generatedScript,
@@ -50,10 +51,15 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
             disabled={profilesLoading}
           >
             <option value="">{profilesLoading ? 'Loading...' : 'Select a profile'}</option>
-            {profiles.map((p) => (
+            {availableProfiles.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>
+          {selectedTemplate?.allowedProfileIds && selectedTemplate.allowedProfileIds.length > 0 && (
+            <p className="text-xs text-slate-500 mt-1">
+              Mostrando {availableProfiles.length} de {profiles.length} perfiles (Restringido por Template)
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="template" className={labelClasses}>

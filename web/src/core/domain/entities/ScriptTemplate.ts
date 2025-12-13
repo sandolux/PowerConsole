@@ -14,4 +14,5 @@ export interface ScriptTemplate {
   spName: string;
   parameters: ScriptParameter[];
   rawSqlBody: string; // To save the original SQL as reference
+  allowedProfileIds: string[]; // Profiles allowed to use this template (empty = all)
 }

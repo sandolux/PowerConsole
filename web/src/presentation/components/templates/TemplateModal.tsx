@@ -5,6 +5,7 @@ import { Modal } from '../ui/Modal';
 import { ScriptTemplate, ScriptParameter } from '@/core/domain/entities/ScriptTemplate';
 import { useDi } from '@/presentation/context/DiContext';
 import { Sparkles } from 'lucide-react';
+import { useProfiles } from '@/presentation/hooks/useProfiles';
 
 interface TemplateModalProps {
   isOpen: boolean;
@@ -25,6 +26,9 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rawSqlInput, setRawSqlInput] = useState(''); // For the top textarea
+  const [selectedProfileIds, setSelectedProfileIds] = useState<string[]>([]);
+
+  const { profiles } = useProfiles(workspaceId);
 
   const isEditMode = !!templateToEdit;
 
@@ -37,6 +41,7 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
         setRawSqlBody(templateToEdit.rawSqlBody || '');
         setParameters(templateToEdit.parameters || []);
         setRawSqlInput(templateToEdit.rawSqlBody || '');
+        setSelectedProfileIds(templateToEdit.allowedProfileIds || []);
       } else {
         resetForm();
       }
@@ -51,6 +56,7 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
     setRawSqlBody('');
     setParameters([]);
     setRawSqlInput('');
+    setSelectedProfileIds([]);
     setError(null);
     setLoading(false);
   };
@@ -116,6 +122,7 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
         description,
         parameters,
         rawSqlBody,
+        allowedProfileIds: selectedProfileIds,
       };
       await onSave(templateData);
       onClose();
@@ -169,6 +176,33 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
             <div className="mb-4">
               <label htmlFor="description" className={labelClasses}>Description (Optional)</label>
               <input id="description" type="text" value={description} onChange={(e) => setDescription(e.target.value)} className={inputClasses} />
+            </div>
+            <div className="mb-4">
+              <label className={labelClasses}>Perfiles Permitidos (Opcional)</label>
+              {profiles.length === 0 ? (
+                <p className="text-sm text-slate-500">No hay perfiles en este workspace.</p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {profiles.map((profile) => (
+                    <label key={profile.id} className="inline-flex items-center gap-2 text-sm text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={selectedProfileIds.includes(profile.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedProfileIds(prev => [...prev, profile.id]);
+                          } else {
+                            setSelectedProfileIds(prev => prev.filter(id => id !== profile.id));
+                          }
+                        }}
+                        className="h-4 w-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
+                      />
+                      {profile.name}
+                    </label>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-slate-500 mt-1">Si no seleccionas ninguno, el template se podrá usar con cualquier perfil.</p>
             </div>
           </div>
 

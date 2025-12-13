@@ -14,6 +14,7 @@ export class GenerateScriptFromTemplateUseCase {
     workspaceId: string,
     contextValues: Record<string, string | number | boolean>,
     useLoopMode: boolean = false,
+    profile?: import('../../domain/entities/Profile').Profile,
   ): Promise<string> {
     const templates = await this.templateRepository.getByWorkspaceId(workspaceId);
     const template = templates.find(t => t.id === templateId);
@@ -22,6 +23,6 @@ export class GenerateScriptFromTemplateUseCase {
       throw new Error(`Template with id "${templateId}" not found in this workspace.`);
     }
 
-    return this.scriptGenerator.generate(template, input, contextValues, useLoopMode);
+    return this.scriptGenerator.generate(template, input, contextValues, useLoopMode, profile);
   }
 }
