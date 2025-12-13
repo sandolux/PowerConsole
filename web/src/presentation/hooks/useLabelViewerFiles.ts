@@ -93,6 +93,16 @@ export const useLabelViewerFiles = () => {
     }));
   }, []);
 
+  const toggleSelectAll = useCallback(() => {
+    setSelectedFiles(prevSelected => {
+      if (prevSelected.size === files.length) {
+        return new Set(); // Deseleccionar todo si todos están seleccionados
+      } else {
+        return new Set(files.map(file => file.name)); // Seleccionar todo
+      }
+    });
+  }, [files]);
+
   return {
     files,
     selectedFiles,
@@ -102,5 +112,6 @@ export const useLabelViewerFiles = () => {
     clearGallery,
     toggleSelection,
     toggleFilter,
+    toggleSelectAll,
   };
 };

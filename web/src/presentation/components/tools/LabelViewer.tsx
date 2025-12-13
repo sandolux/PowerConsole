@@ -6,7 +6,7 @@ import { DropOverlay } from './DropOverlay';
 import { Toolbar } from './Toolbar';
 import { CodeCard } from './CodeCard';
 import { EmptyState } from './EmptyState';
-import { Toast } from '../../utils/Toast'; // Importar Toast
+import { Toast } from '../../utils/Toast';
 
 interface LabelViewerProps {
   onInjectCodes?: (codes: string[]) => void;
@@ -23,6 +23,7 @@ export const LabelViewer: React.FC<LabelViewerProps> = ({ onInjectCodes, onClose
     clearGallery,
     toggleSelection,
     toggleFilter,
+    toggleSelectAll, // Importar toggleSelectAll
   } = useLabelViewerFiles();
 
   const [isDragOver, setIsDragOver] = useState(false);
@@ -52,6 +53,15 @@ export const LabelViewer: React.FC<LabelViewerProps> = ({ onInjectCodes, onClose
     }
   }, [loadFiles]);
 
+  const handleUseCodes = useCallback(() => {
+    if (onInjectCodes) {
+      onInjectCodes(Array.from(selectedFiles));
+    }
+    if (onClose) {
+      onClose();
+    }
+  }, [selectedFiles, onInjectCodes, onClose]);
+
   // Aplica filtros CSS
   const getFilterStyle = useCallback(() => {
     const cssFilters: string[] = [];
@@ -76,8 +86,10 @@ export const LabelViewer: React.FC<LabelViewerProps> = ({ onInjectCodes, onClose
         clearGallery={clearGallery}
         filters={filters}
         toggleFilter={toggleFilter}
-        onInjectCodes={onInjectCodes} // Pasar para que Toolbar pueda manejar el botón "Generar SQL" / "Usar Códigos"
+        onInjectCodes={handleUseCodes} // Ahora llama a handleUseCodes
         selectedFileCount={selectedFiles.size}
+        totalFileCount={files.length} // Pasar totalFileCount
+        toggleSelectAll={toggleSelectAll} // Pasar toggleSelectAll
       />
 
       <div className="flex-1 p-4 overflow-y-auto">

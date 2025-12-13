@@ -1,6 +1,12 @@
 import JSZip from 'jszip';
 
 export class FileProcessorService {
+  private supportedImageExtensions = /\.(jpeg|jpg|png|gif|bmp|webp)$/i;
+
+  private isImage(fileName: string): boolean {
+    return this.supportedImageExtensions.test(fileName);
+  }
+
   /**
    * Procesa una lista de archivos, descomprimiendo ZIPs y filtrando imágenes.
    * Mantiene un índice de nombres existentes para evitar duplicados.
@@ -18,12 +24,19 @@ export class FileProcessorService {
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i];
 
-      if (file.type === 'application/zip') {
-        const zip = await new JSZip().loadAsync(file);
-        const zipFiles = await this.processZipFile(zip, currentNameIndex);
-        processedFiles.push(...zipFiles.processedFiles);
-        skippedCount += zipFiles.skippedCount;
-      } else if (file.type.startsWith('image/')) {
+      const isZip = file.type.includes('zip') || file.name.toLowerCase().endsWith('.zip');
+
+      if (isZip) {
+        try {
+          const zip = await new JSZip().loadAsync(file);
+          const zipFiles = await this.processZipFile(zip, currentNameIndex);
+          processedFiles.push(...zipFiles.processedFiles);
+          skippedCount += zipFiles.skippedCount;
+        } catch (e) {
+          console.error(`Error processing zip file ${file.name}:`, e);
+          skippedCount++;
+        }
+      } else if (file.type.startsWith('image/') || this.isImage(file.name)) {
         if (!currentNameIndex.has(file.name)) {
           processedFiles.push({ name: file.name, blob: file });
           currentNameIndex.add(file.name);
@@ -51,7 +64,8 @@ export class FileProcessorService {
     const promises: Promise<void>[] = [];
 
     zip.forEach((relativePath, zipEntry) => {
-      if (!zipEntry.dir && relativePath.match(/\.(jpeg|jpg|png|gif|bmp|webp)$/i)) {
+      // Usar la función isImage para detectar imágenes dentro del ZIP
+      if (!zipEntry.dir && this.isImage(relativePath)) {
         if (!currentNameIndex.has(relativePath)) {
           promises.push(
             zipEntry.async('blob').then(blob => {

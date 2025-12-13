@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback } from 'react';
-import { Plus, X, GalleryHorizontal, Filter, Palette, Sun, Moon, Contrast, Pipette, ScanSearch } from 'lucide-react';
+import { Plus, X, GalleryHorizontal, Filter, Palette, Sun, Moon, Contrast, Pipette, ScanSearch, CheckSquare, Square } from 'lucide-react'; // Añadir CheckSquare, Square
 import { Filters } from '@/presentation/hooks/useLabelViewerFiles'; // Ajusta la ruta si es necesario
 
 interface ToolbarProps {
@@ -11,6 +11,8 @@ interface ToolbarProps {
   toggleFilter: (filterName: 'contrast' | 'invert' | 'grayscale') => void;
   onInjectCodes?: (codes: string[]) => void;
   selectedFileCount: number;
+  totalFileCount: number; // Añadir totalFileCount para saber si todos están seleccionados
+  toggleSelectAll: () => void; // Añadir toggleSelectAll
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -20,6 +22,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   toggleFilter,
   onInjectCodes,
   selectedFileCount,
+  totalFileCount,
+  toggleSelectAll,
 }) => {
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -27,6 +31,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       e.target.value = ''; // Reset input
     }
   }, [loadFiles]);
+
+  const allSelected = totalFileCount > 0 && selectedFileCount === totalFileCount;
 
   return (
     <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
@@ -54,6 +60,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         >
           <X className="w-4 h-4 mr-2" /> Limpiar Todo
         </button>
+        {totalFileCount > 0 && (
+          <button
+            onClick={toggleSelectAll}
+            className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+            title={allSelected ? "Deseleccionar todos" : "Seleccionar todos"}
+          >
+            {allSelected ? <CheckSquare className="w-4 h-4 mr-2" /> : <Square className="w-4 h-4 mr-2" />}
+            {allSelected ? "Deseleccionar" : "Seleccionar Todos"}
+          </button>
+        )}
       </div>
 
       {/* Sección de Filtros */}
@@ -87,14 +103,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
       {/* Sección de Herramientas y Acción (Usar Códigos) */}
       <div className="flex items-center gap-2">
-        {/* Placeholder para otros botones como ColInput, ZoomInput, etc. */}
-        {/* <button className="px-3 py-2 text-sm font-medium rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
-          <GalleryHorizontal className="w-4 h-4" /> Ver Columnas
-        </button> */}
-        {/* Botón de Generar SQL / Usar Códigos */}
         {onInjectCodes && selectedFileCount > 0 && (
           <button
-            onClick={() => onInjectCodes([])} // Implementar la lógica para pasar los códigos
+            onClick={onInjectCodes} // Llama directamente a onInjectCodes (ya preparada en LabelViewer)
             className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
             title="Usar códigos de barra seleccionados"
           >

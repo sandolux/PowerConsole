@@ -73,7 +73,7 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
 
   const handleInjectCodes = (codes: string[]) => {
     const newCodes = codes.join('\n');
-    setInputData((prev) => (prev ? `${prev}\n${newCodes}` : newCodes));
+    setInputData(newCodes); // Sobrescribir el contenido actual
     setShowLabelViewerModal(false);
   };
 
@@ -147,16 +147,13 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
             <label htmlFor="input-data" className={labelClasses}>
               Input Data (Smart Import)
             </label>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowLabelViewerModal(true)}
-                className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-                title="Importar códigos de barra desde Label Viewer"
-              >
-                <ScanBarcode className="w-4 h-4 mr-2" /> Importar Códigos
-              </button>
-              <span className="text-xs text-gray-600 dark:text-gray-400">Ingresa valores para {batchParamName}</span>
-            </div>
+            <button
+              onClick={() => setShowLabelViewerModal(true)}
+              className="bg-indigo-600/70 dark:bg-indigo-700/80 text-white rounded-lg px-3 py-1.5 text-sm font-semibold hover:bg-indigo-700 transition-colors"
+              title="Importar códigos de barra desde Label Viewer"
+            >
+              <ScanBarcode className="w-4 h-4" />
+            </button>
           </div>
           <textarea
             id="input-data"
