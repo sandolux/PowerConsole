@@ -5,33 +5,40 @@ import React, { createContext, useContext, ReactNode } from 'react';
 // 1. Import Interfaces (Ports from Core)
 import { IWorkspaceRepository } from '../../core/repositories/IWorkspaceRepository';
 import { IProfileRepository } from '../../core/repositories/IProfileRepository';
-import { ITemplateRepository } from '../../core/repositories/ITemplateRepository';
+import { IScriptTemplateRepository } from '../../core/repositories/IScriptTemplateRepository';
 import { IVariableRepository } from '../../core/repositories/IVariableRepository';
+import { IScriptGenerator } from '@/core/domain/services/IScriptGenerator';
+import { SqlParserService } from '@/core/services/SqlParserService';
 import { ICryptoService } from '../../core/repositories/ICryptoService';
 
 // 2. Import Implementations (Adapters from Infrastructure)
 import { DexieWorkspaceRepository } from '../../infrastructure/repositories/DexieWorkspaceRepository';
 import { DexieProfileRepository } from '../../infrastructure/repositories/DexieProfileRepository';
-import { DexieTemplateRepository } from '../../infrastructure/repositories/DexieTemplateRepository';
+import { DexieScriptTemplateRepository } from '../../infrastructure/repositories/DexieScriptTemplateRepository';
 import { DexieVariableRepository } from '../../infrastructure/repositories/DexieVariableRepository';
 import { SimpleCryptoService } from '../../infrastructure/repositories/SimpleCryptoService';
+import { SqlScriptGeneratorService } from '@/core/services/SqlScriptGeneratorService';
 
 // 3. Define the shape of the dependencies object
 export interface AppDependencies {
   workspaceRepo: IWorkspaceRepository;
   profileRepo: IProfileRepository;
-  templateRepo: ITemplateRepository;
+  templateRepo: IScriptTemplateRepository;
   variableRepo: IVariableRepository;
   cryptoService: ICryptoService;
+  scriptGenerator: IScriptGenerator;
+  sqlParser: SqlParserService;
 }
 
 // 4. Instantiate concrete implementations to be injected
 const appDependencies: AppDependencies = {
   workspaceRepo: new DexieWorkspaceRepository(),
   profileRepo: new DexieProfileRepository(),
-  templateRepo: new DexieTemplateRepository(),
+  templateRepo: new DexieScriptTemplateRepository(),
   variableRepo: new DexieVariableRepository(),
   cryptoService: new SimpleCryptoService(),
+  scriptGenerator: new SqlScriptGeneratorService(),
+  sqlParser: new SqlParserService(),
 };
 
 // 5. Create the React Context
