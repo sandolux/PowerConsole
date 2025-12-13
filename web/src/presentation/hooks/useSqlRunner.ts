@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useDi } from '../context/DiContext';
 import { GetTemplatesByWorkspaceUseCase } from '@/core/use-cases/templates/ManageTemplatesUseCase';
 import { GenerateScriptFromTemplateUseCase } from '@/core/use-cases/templates/GenerateScriptFromTemplateUseCase';
@@ -24,7 +24,7 @@ export const useSqlRunner = (workspaceId: string) => {
   const [availableProfiles, setAvailableProfiles] = useState<typeof allProfiles>([]);
   const [pendingContextValues, setPendingContextValues] = useState<Record<string, string | number | boolean> | null>(null);
   const [logReloadKey, setLogReloadKey] = useState(0);
-  const [isRestoring, setIsRestoring] = useState(false);
+  const isRestoringRef = useRef(false);
 
   const getTemplatesUseCase = useMemo(() => new GetTemplatesByWorkspaceUseCase(templateRepo), [templateRepo]);
   const logExecutionUseCase = useMemo(() => new LogExecutionUseCase(executionLogRepo), [executionLogRepo]);
@@ -76,8 +76,8 @@ export const useSqlRunner = (workspaceId: string) => {
     if (pendingContextValues) {
       setContextValues(pendingContextValues);
       setPendingContextValues(null);
-      setIsRestoring(false);
-    } else if (!isRestoring) {
+      isRestoringRef.current = false;
+    } else if (!isRestoringRef.current) {
       setContextValues(initialContext);
     }
 
@@ -182,13 +182,19 @@ export const useSqlRunner = (workspaceId: string) => {
     copyToClipboard,
     handleDeleteLog,
     restoreStateFromLog: (log: ExecutionLog) => {
-      setIsRestoring(true);
+      isRestoringRef.current = true;
       setSelectedProfileId(log.profileId);
       setSelectedTemplateId(log.templateId);
-    setInputData(log.rawInput);
-      setContextValues((log.contextValues as Record<string, string | number | boolean>) || {});
-      setPendingContextValues((log.contextValues as Record<string, string | number | boolean>) || {});
+      setInputData(log.rawInput);
+
+      const normalizedContext = (log.contextValues as Record<string, string | number | boolean>) || {};
+      setContextValues(normalizedContext);
+      setPendingContextValues(normalizedContext);
       setUseLoopMode(log.useLoopMode ?? false);
+
+      setTimeout(() => {
+        isRestoringRef.current = false;
+      }, 100);
     },
     reloadLogs: () => setLogReloadKey(key => key + 1),
     logReloadKey,

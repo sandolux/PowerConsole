@@ -12,6 +12,7 @@ import { ProfileList } from "@/presentation/components/profiles/ProfileList";
 import { VariableList } from "@/presentation/components/variables/VariableList";
 import { SqlRunner } from "@/presentation/components/runner/SqlRunner";
 import { TemplateList } from "@/presentation/components/templates/TemplateList";
+import { BackupPanel } from "@/presentation/components/settings/BackupPanel";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -66,6 +67,7 @@ export default function WorkspaceDetailPage() {
             <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="sql-runner">SQL Runner</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
           <TabsContent value="profiles">
             <ProfileList workspaceId={id} />
@@ -85,6 +87,9 @@ export default function WorkspaceDetailPage() {
                 Aquí irá el registro de logs y actividades.
               </p>
             </div>
+          </TabsContent>
+          <TabsContent value="settings">
+            <BackupPanel workspaceId={id} />
           </TabsContent>
         </Tabs>
       </div>

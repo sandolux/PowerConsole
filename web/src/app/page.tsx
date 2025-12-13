@@ -4,8 +4,10 @@ import { useState, useMemo } from 'react';
 import { useWorkspaces } from '../presentation/hooks/useWorkspaces';
 import { Workspace, WorkspaceEnvironment } from '../core/domain/entities/Workspace';
 import DashboardLayout from '../presentation/components/layout/DashboardLayout';
-import { Plus, Search, FolderKanban, Trash2, MoreVertical, Loader2 } from 'lucide-react';
+import { Plus, Search, FolderKanban, Trash2, Loader2, Upload } from 'lucide-react';
 import Link from 'next/link';
+import { useRef } from 'react';
+import { useBackup } from '@/presentation/hooks/useBackup';
 
 // --- Sub-components for better structure ---
 
@@ -90,6 +92,8 @@ export default function HomePage() {
   const { workspaces, loading, error, createWorkspace, deleteWorkspace } = useWorkspaces();
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const { handleImport } = useBackup();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleCreateWorkspace = async (name: string, description: string) => {
     // For simplicity, add all environments by default
@@ -123,10 +127,42 @@ export default function HomePage() {
               className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
-          <button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <Plus size={16} />
-            Nuevo
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <Plus size={16} />
+              Nuevo
+            </button>
+            <input
+              type="file"
+              accept=".json,application/json"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                try {
+                  await handleImport(file);
+                  // TODO: replace alert with toast
+                  alert("Backup importado correctamente. Actualiza la lista si no se refleja automáticamente.");
+                } catch (err) {
+                  alert("Error al importar backup. Revisa la consola.");
+                } finally {
+                  e.target.value = "";
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"
+            >
+              <Upload size={16} />
+              Importar Backup
+            </button>
+          </div>
         </div>
       </div>
 

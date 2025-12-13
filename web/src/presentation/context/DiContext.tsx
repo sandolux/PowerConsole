@@ -21,6 +21,9 @@ import { DexieVariableRepository } from '../../infrastructure/repositories/Dexie
 import { SimpleCryptoService } from '../../infrastructure/repositories/SimpleCryptoService';
 import { SqlScriptGeneratorService } from '@/core/services/SqlScriptGeneratorService';
 import { DexieExecutionLogRepository } from '../../infrastructure/repositories/DexieExecutionLogRepository';
+import { BackupService } from '@/core/services/BackupService';
+import { ExportWorkspaceUseCase } from '@/core/use-cases/backup/ExportWorkspaceUseCase';
+import { ImportWorkspaceUseCase } from '@/core/use-cases/backup/ImportWorkspaceUseCase';
 
 // 3. Define the shape of the dependencies object
 export interface AppDependencies {
@@ -33,21 +36,38 @@ export interface AppDependencies {
   sqlParser: SqlParserService;
   executionLogRepo: IExecutionLogRepository;
   deleteLogUseCase: DeleteLogUseCase;
+  backupService: BackupService;
+  exportWorkspaceUseCase: ExportWorkspaceUseCase;
+  importWorkspaceUseCase: ImportWorkspaceUseCase;
 }
 
 // 4. Instantiate concrete implementations to be injected
 const executionLogRepoInstance = new DexieExecutionLogRepository();
+const workspaceRepoInstance = new DexieWorkspaceRepository();
+const profileRepoInstance = new DexieProfileRepository();
+const templateRepoInstance = new DexieScriptTemplateRepository();
+const variableRepoInstance = new DexieVariableRepository();
+const backupServiceInstance = new BackupService(
+  workspaceRepoInstance,
+  profileRepoInstance,
+  variableRepoInstance,
+  templateRepoInstance,
+  executionLogRepoInstance
+);
 
 const appDependencies: AppDependencies = {
-  workspaceRepo: new DexieWorkspaceRepository(),
-  profileRepo: new DexieProfileRepository(),
-  templateRepo: new DexieScriptTemplateRepository(),
-  variableRepo: new DexieVariableRepository(),
+  workspaceRepo: workspaceRepoInstance,
+  profileRepo: profileRepoInstance,
+  templateRepo: templateRepoInstance,
+  variableRepo: variableRepoInstance,
   cryptoService: new SimpleCryptoService(),
   scriptGenerator: new SqlScriptGeneratorService(),
   sqlParser: new SqlParserService(),
   executionLogRepo: executionLogRepoInstance,
   deleteLogUseCase: new DeleteLogUseCase(executionLogRepoInstance),
+  backupService: backupServiceInstance,
+  exportWorkspaceUseCase: new ExportWorkspaceUseCase(backupServiceInstance),
+  importWorkspaceUseCase: new ImportWorkspaceUseCase(backupServiceInstance),
 };
 
 // 5. Create the React Context
