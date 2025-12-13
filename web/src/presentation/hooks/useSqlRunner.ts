@@ -63,7 +63,14 @@ export const useSqlRunner = (workspaceId: string) => {
     selectedTemplate.parameters
       .filter(p => !p.isBatchParam)
       .forEach(param => {
-        initialContext[param.name] = param.defaultValue ?? (param.type === 'boolean' ? false : '');
+        const baseValue = param.defaultValue;
+        if (baseValue === undefined || baseValue === null) {
+          initialContext[param.name] = param.type === 'boolean' ? false : '';
+        } else if (param.type === 'number' && baseValue !== '') {
+          initialContext[param.name] = typeof baseValue === 'number' ? baseValue : Number(baseValue);
+        } else {
+          initialContext[param.name] = baseValue as string | number | boolean;
+        }
       });
 
     if (pendingContextValues) {

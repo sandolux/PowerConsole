@@ -118,7 +118,7 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
         <div className="space-y-3 border border-slate-200 rounded-lg p-4 bg-white">
           <h4 className="text-sm font-semibold text-slate-800">Configuración de Ejecución</h4>
           {contextParams.length === 0 && (
-            <p className="text-sm text-slate-500">Este template no tiene parámetros de contexto adicionales.</p>
+            <p className="text-sm text-slate-500">No hay parámetros de contexto (todos son batch o no existen).</p>
           )}
           {contextParams.map((param) => {
             const isIxDesp = param.name.toLowerCase() === '@ix_desp';

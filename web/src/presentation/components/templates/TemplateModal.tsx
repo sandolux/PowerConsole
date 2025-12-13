@@ -35,11 +35,22 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
   useEffect(() => {
     if (isOpen) {
       if (isEditMode && templateToEdit) {
+        const cleanedParameters = (() => {
+          const params = templateToEdit.parameters || [];
+          let found = false;
+          return params.map((p) => {
+            if (p.isBatchParam && !found) {
+              found = true;
+              return { ...p, isBatchParam: true };
+            }
+            return { ...p, isBatchParam: false };
+          });
+        })();
         setName(templateToEdit.name);
         setSpName(templateToEdit.spName);
         setDescription(templateToEdit.description || '');
         setRawSqlBody(templateToEdit.rawSqlBody || '');
-        setParameters(templateToEdit.parameters || []);
+        setParameters(cleanedParameters);
         setRawSqlInput(templateToEdit.rawSqlBody || '');
         setSelectedProfileIds(templateToEdit.allowedProfileIds || []);
       } else {
@@ -89,6 +100,13 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
       newParams[index] = { ...newParams[index], [field]: value };
       return newParams;
     });
+  };
+
+  const handleBatchParamChange = (selectedIndex: number) => {
+    setParameters(prevParams => prevParams.map((param, idx) => ({
+      ...param,
+      isBatchParam: idx === selectedIndex
+    })));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -222,7 +240,7 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
                       <th className="px-2 py-1 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Batch Param</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-slate-200">
+          <tbody className="bg-white divide-y divide-slate-200">
                     {parameters.map((param, index) => (
                       <tr key={param.name}>
                         <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-slate-900">
@@ -260,9 +278,9 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-slate-500 text-center">
                           <input
                             type="radio"
-                            name="batchParam" // Group radio buttons by name
+                            name="batchParamGroup"
                             checked={param.isBatchParam || false}
-                            onChange={(e) => handleParameterChange(index, 'isBatchParam', e.target.checked)}
+                            onChange={() => handleBatchParamChange(index)}
                             className="h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500"
                           />
                         </td>
