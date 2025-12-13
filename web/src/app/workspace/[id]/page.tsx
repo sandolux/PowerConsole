@@ -19,7 +19,7 @@ export default function WorkspaceDetailPage() {
   const { workspace, loading, error } = useWorkspaceDetail(id);
   const [activeSection, setActiveSection] = useState<
     "profiles" | "variables" | "templates" | "runner" | "settings" | "summary" | "logs"
-  >("profiles");
+  >("summary");
 
   if (loading) {
     return (

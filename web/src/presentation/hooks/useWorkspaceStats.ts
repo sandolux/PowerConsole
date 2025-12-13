@@ -7,11 +7,11 @@ import { WorkspaceStats } from "@/core/domain/entities/WorkspaceStats";
 export const useWorkspaceStats = (workspaceId: string) => {
   const { getWorkspaceStatsUseCase } = useDi();
   const [stats, setStats] = useState<WorkspaceStats | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadStats = useCallback(async () => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
     try {
       const data = await getWorkspaceStatsUseCase.execute(workspaceId);
@@ -19,7 +19,7 @@ export const useWorkspaceStats = (workspaceId: string) => {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error fetching stats");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [getWorkspaceStatsUseCase, workspaceId]);
 
@@ -27,5 +27,5 @@ export const useWorkspaceStats = (workspaceId: string) => {
     void loadStats();
   }, [loadStats]);
 
-  return { stats, loading, error, reload: loadStats };
+  return { stats, isLoading, error, refreshStats: loadStats };
 };

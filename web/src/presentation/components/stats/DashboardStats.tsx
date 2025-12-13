@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useWorkspaceStats } from "@/presentation/hooks/useWorkspaceStats";
+import { StatCard } from "@/presentation/components/stats/StatCard";
 import { ArrowUp, BarChart3, Database, FileCode2, Logs, Users } from "lucide-react";
 import { ExecutionLog } from "@/core/domain/entities/ExecutionLog";
 
@@ -10,28 +11,8 @@ interface DashboardStatsProps {
   onRestoreLog?: (log: ExecutionLog) => void;
 }
 
-const StatCard = ({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: any;
-  label: string;
-  value: string | number;
-}) => (
-  <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex items-center gap-3 shadow-sm">
-    <div className="h-10 w-10 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-300">
-      <Icon size={18} />
-    </div>
-    <div>
-      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{value}</p>
-    </div>
-  </div>
-);
-
 export const DashboardStats = ({ workspaceId, onRestoreLog }: DashboardStatsProps) => {
-  const { stats, loading, error, reload } = useWorkspaceStats(workspaceId);
+  const { stats, isLoading, error, refreshStats } = useWorkspaceStats(workspaceId);
 
   const last7Days = useMemo(() => {
     if (!stats) return [];
@@ -47,11 +28,11 @@ export const DashboardStats = ({ workspaceId, onRestoreLog }: DashboardStatsProp
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Resumen del Proyecto</h2>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Resumen del Proyecto</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">Actividad y salud del workspace.</p>
         </div>
         <button
-          onClick={reload}
+          onClick={refreshStats}
           className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         >
           <ArrowUp size={16} />
@@ -60,21 +41,21 @@ export const DashboardStats = ({ workspaceId, onRestoreLog }: DashboardStatsProp
       </div>
 
       {error && <p className="text-sm text-red-500">{error}</p>}
-      {loading && <p className="text-sm text-gray-500 dark:text-gray-400">Cargando estadísticas...</p>}
+      {isLoading && <p className="text-sm text-gray-500 dark:text-gray-400">Cargando estadísticas...</p>}
 
       {stats && (
         <>
-          {/* Fila 1: contadores */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard icon={BarChart3} label="Scripts generados" value={stats.totalScriptsGenerated} />
-            <StatCard icon={FileCode2} label="Templates" value={stats.totalTemplates} />
-            <StatCard icon={Users} label="Perfiles" value={stats.totalProfiles} />
-            <StatCard icon={Database} label="Variables" value={stats.totalVariables} />
+          {/* Sección 1: contadores */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+            <StatCard title="Scripts generados" value={stats.totalScriptsGenerated} icon={BarChart3} />
+            <StatCard title="Templates" value={stats.totalTemplates} icon={FileCode2} />
+            <StatCard title="Perfiles" value={stats.totalProfiles} icon={Users} />
+            <StatCard title="Variables" value={stats.totalVariables} icon={Database} />
           </div>
 
-          {/* Fila 2: gráfica simple + top templates */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm">
+          {/* Sección 2: actividad + top templates */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+            <div className="lg:col-span-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Actividad últimos 7 días</h3>
                 <span className="text-xs text-gray-500 dark:text-gray-400">Scripts generados</span>
@@ -96,6 +77,9 @@ export const DashboardStats = ({ workspaceId, onRestoreLog }: DashboardStatsProp
                     <span className="text-xs text-gray-700 dark:text-gray-300 w-8 text-right">{count}</span>
                   </div>
                 ))}
+                {last7Days.length === 0 && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Instala o integra tu librería de charts para visualizar.</p>
+                )}
               </div>
             </div>
 
@@ -110,7 +94,7 @@ export const DashboardStats = ({ workspaceId, onRestoreLog }: DashboardStatsProp
                 )}
                 {topTemplates.map((item) => (
                   <li key={item.name} className="py-3 flex items-center justify-between">
-                    <span className="text-sm text-gray-800 dark:text-gray-200">{item.name}</span>
+                    <span className="text-sm text-gray-800 dark:text-gray-200 truncate">{item.name}</span>
                     <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{item.count}</span>
                   </li>
                 ))}
@@ -118,8 +102,8 @@ export const DashboardStats = ({ workspaceId, onRestoreLog }: DashboardStatsProp
             </div>
           </div>
 
-          {/* Fila 3: logs recientes */}
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm">
+          {/* Sección 3: logs recientes */}
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm mt-8">
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Logs recientes</h3>
