@@ -11,9 +11,11 @@ import { Toast } from '../../utils/Toast';
 interface LabelViewerProps {
   onInjectCodes?: (codes: string[]) => void;
   onClose?: () => void;
+  context?: 'standalone' | 'modal'; // Nueva prop de contexto
+  workspaceId?: string; // Prop opcional para LabelViewerPage si es necesario
 }
 
-export const LabelViewer: React.FC<LabelViewerProps> = ({ onInjectCodes, onClose }) => {
+export const LabelViewer: React.FC<LabelViewerProps> = ({ onInjectCodes, onClose, context = 'standalone', workspaceId }) => {
   const {
     files,
     selectedFiles,
@@ -23,7 +25,8 @@ export const LabelViewer: React.FC<LabelViewerProps> = ({ onInjectCodes, onClose
     clearGallery,
     toggleSelection,
     toggleFilter,
-    toggleSelectAll, // Importar toggleSelectAll
+    toggleSelectAll,
+    removeFile, // Importar removeFile
   } = useLabelViewerFiles();
 
   const [isDragOver, setIsDragOver] = useState(false);
@@ -55,12 +58,16 @@ export const LabelViewer: React.FC<LabelViewerProps> = ({ onInjectCodes, onClose
 
   const handleUseCodes = useCallback(() => {
     if (onInjectCodes) {
-      onInjectCodes(Array.from(selectedFiles));
+      // Obtener los códigos saneados de los archivos seleccionados
+      const codesToInject = files
+        .filter(file => selectedFiles.has(file.name))
+        .map(file => file.code);
+      onInjectCodes(codesToInject);
     }
     if (onClose) {
       onClose();
     }
-  }, [selectedFiles, onInjectCodes, onClose]);
+  }, [files, selectedFiles, onInjectCodes, onClose]);
 
   // Aplica filtros CSS
   const getFilterStyle = useCallback(() => {
@@ -86,10 +93,11 @@ export const LabelViewer: React.FC<LabelViewerProps> = ({ onInjectCodes, onClose
         clearGallery={clearGallery}
         filters={filters}
         toggleFilter={toggleFilter}
-        onInjectCodes={handleUseCodes} // Ahora llama a handleUseCodes
+        onInjectCodes={context === 'modal' ? handleUseCodes : undefined} // Solo pasar onInjectCodes si el contexto es modal
         selectedFileCount={selectedFiles.size}
-        totalFileCount={files.length} // Pasar totalFileCount
-        toggleSelectAll={toggleSelectAll} // Pasar toggleSelectAll
+        totalFileCount={files.length}
+        toggleSelectAll={toggleSelectAll}
+        context={context}
       />
 
       <div className="flex-1 p-4 overflow-y-auto">
@@ -106,6 +114,8 @@ export const LabelViewer: React.FC<LabelViewerProps> = ({ onInjectCodes, onClose
                 selected={selectedFiles.has(file.name)}
                 toggleSelection={toggleSelection}
                 filterStyle={getFilterStyle()}
+                context={context} // Pasar el contexto
+                onRemove={removeFile} // Pasar la función removeFile
               />
             ))}
           </div>

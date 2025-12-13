@@ -9,7 +9,8 @@ interface ProcessedFile {
 interface GalleryFile {
   name: string;
   url: string;
-  blob: Blob; // Mantener el blob para posible re-procesamiento o descarga
+  blob: Blob;
+  code: string; // Añadir la propiedad 'code'
 }
 
 export interface Filters {
@@ -52,9 +53,11 @@ export const useLabelViewerFiles = () => {
 
       const newGalleryFiles: GalleryFile[] = processedFiles.map(file => ({
         name: file.name,
+        code: file.code, // Añadir el código saneado
         url: URL.createObjectURL(file.blob),
         blob: file.blob,
       }));
+
 
       setFiles(prevFiles => {
         const updatedFiles = action === 'replace' ? newGalleryFiles : [...prevFiles, ...newGalleryFiles];
@@ -103,6 +106,21 @@ export const useLabelViewerFiles = () => {
     });
   }, [files]);
 
+  const removeFile = useCallback((fileName: string) => {
+    setFiles(prevFiles => {
+      const fileToRemove = prevFiles.find(file => file.name === fileName);
+      if (fileToRemove) {
+        URL.revokeObjectURL(fileToRemove.url); // Liberar la URL
+      }
+      return prevFiles.filter(file => file.name !== fileName);
+    });
+    setSelectedFiles(prevSelected => {
+      const newSelection = new Set(prevSelected);
+      newSelection.delete(fileName);
+      return newSelection;
+    });
+  }, []);
+
   return {
     files,
     selectedFiles,
@@ -113,5 +131,6 @@ export const useLabelViewerFiles = () => {
     toggleSelection,
     toggleFilter,
     toggleSelectAll,
+    removeFile, // Añadir removeFile
   };
 };

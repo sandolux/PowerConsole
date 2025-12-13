@@ -1,21 +1,40 @@
 "use client";
 
 import React from 'react';
+import { Trash2 } from 'lucide-react'; // Importar Trash2
 
 interface CodeCardProps {
-  file: { name: string; url: string };
+  file: { name: string; url: string; code: string }; // Añadir 'code'
   selected: boolean;
   toggleSelection: (fileName: string) => void;
   filterStyle: React.CSSProperties;
+  context?: 'standalone' | 'modal'; // Nueva prop de contexto
+  onRemove?: (fileName: string) => void; // Función para eliminar
 }
 
-export const CodeCard: React.FC<CodeCardProps> = ({ file, selected, toggleSelection, filterStyle }) => {
+export const CodeCard: React.FC<CodeCardProps> = ({ file, selected, toggleSelection, filterStyle, context, onRemove }) => {
+  const handleRemoveClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Evitar que el clic se propague al div principal (toggleSelection)
+    if (onRemove) {
+      onRemove(file.name);
+    }
+  };
+
   return (
     <div
       className={`relative border rounded-md overflow-hidden cursor-pointer transition-all duration-200
                   ${selected ? 'border-indigo-500 ring-2 ring-indigo-500' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}`}
       onClick={() => toggleSelection(file.name)}
     >
+      {context === 'standalone' && onRemove && (
+        <button
+          onClick={handleRemoveClick}
+          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
+          title="Eliminar archivo"
+        >
+          <Trash2 size={16} />
+        </button>
+      )}
       <img
         src={file.url}
         alt={file.name}

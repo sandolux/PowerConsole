@@ -7,18 +7,51 @@ export class FileProcessorService {
     return this.supportedImageExtensions.test(fileName);
   }
 
+  // Nueva función para sanear el código
+  private sanitizeCode(fileName: string): string {
+    // 1. Elimina la extensión del archivo
+    let code = fileName.replace(/\.[^/.]+$/, "");
+
+    // 2. Elimina el prefijo del contador y guion bajo o guion (ej: '1_', '2-', 'ABC-')
+    // Busca el último '_' o '-' para manejar múltiples separadores o prefijos complejos
+    const lastUnderscoreIndex = code.lastIndexOf('_');
+    const lastHyphenIndex = code.lastIndexOf('-');
+
+    let lastSeparatorIndex = -1;
+    if (lastUnderscoreIndex > lastHyphenIndex) {
+      lastSeparatorIndex = lastUnderscoreIndex;
+    } else {
+      lastSeparatorIndex = lastHyphenIndex;
+    }
+
+    if (lastSeparatorIndex !== -1) {
+      const potentialCode = code.substring(lastSeparatorIndex + 1);
+      // Regla Final: Si el código limpiado solo contiene números, devuélvelo
+      if (/^\d+$/.test(potentialCode)) {
+        return potentialCode;
+      }
+    }
+    
+    // Si no se encuentra un separador o el código no es numérico, intentar con el código original sin extensión
+    if (/^\d+$/.test(code)) {
+        return code;
+    }
+
+    return fileName; // Retornar el nombre original si no se puede sanear a un número
+  }
+
   /**
    * Procesa una lista de archivos, descomprimiendo ZIPs y filtrando imágenes.
    * Mantiene un índice de nombres existentes para evitar duplicados.
    * @param fileList La lista de archivos a procesar (desde un input de tipo file).
    * @param currentNameIndex Un Set con los nombres de archivos ya cargados para evitar duplicados.
-   * @returns Un objeto que contiene un array de archivos procesados (nombre y Blob) y la cantidad de archivos omitidos.
+   * @returns Un objeto que contiene un array de archivos procesados (nombre y code) y la cantidad de archivos omitidos.
    */
   public async processFiles(
     fileList: FileList,
     currentNameIndex: Set<string>
-  ): Promise<{ processedFiles: Array<{ name: string; blob: Blob }>; skippedCount: number }> {
-    const processedFiles: Array<{ name: string; blob: Blob }> = [];
+  ): Promise<{ processedFiles: Array<{ name: string; code: string; blob: Blob }>; skippedCount: number }> {
+    const processedFiles: Array<{ name: string; code: string; blob: Blob }> = [];
     let skippedCount = 0;
 
     for (let i = 0; i < fileList.length; i++) {
@@ -38,7 +71,8 @@ export class FileProcessorService {
         }
       } else if (file.type.startsWith('image/') || this.isImage(file.name)) {
         if (!currentNameIndex.has(file.name)) {
-          processedFiles.push({ name: file.name, blob: file });
+          const code = this.sanitizeCode(file.name);
+          processedFiles.push({ name: file.name, code, blob: file });
           currentNameIndex.add(file.name);
         } else {
           skippedCount++;
@@ -57,8 +91,8 @@ export class FileProcessorService {
   private async processZipFile(
     zip: JSZip,
     currentNameIndex: Set<string>
-  ): Promise<{ processedFiles: Array<{ name: string; blob: Blob }>; skippedCount: number }> {
-    const processedFiles: Array<{ name: string; blob: Blob }> = [];
+  ): Promise<{ processedFiles: Array<{ name: string; code: string; blob: Blob }>; skippedCount: number }> {
+    const processedFiles: Array<{ name: string; code: string; blob: Blob }> = [];
     let skippedCount = 0;
 
     const promises: Promise<void>[] = [];
@@ -69,7 +103,8 @@ export class FileProcessorService {
         if (!currentNameIndex.has(relativePath)) {
           promises.push(
             zipEntry.async('blob').then(blob => {
-              processedFiles.push({ name: relativePath, blob });
+              const code = this.sanitizeCode(relativePath);
+              processedFiles.push({ name: relativePath, code, blob });
               currentNameIndex.add(relativePath);
             })
           );
@@ -84,3 +119,4 @@ export class FileProcessorService {
     return { processedFiles, skippedCount };
   }
 }
+

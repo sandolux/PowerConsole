@@ -9,7 +9,7 @@ interface ToolbarProps {
   clearGallery: () => void;
   filters: Filters;
   toggleFilter: (filterName: 'contrast' | 'invert' | 'grayscale') => void;
-  onInjectCodes?: (codes: string[]) => void;
+  onInjectCodes?: () => void; // onInjectCodes ya no recibe un array, se llama directamente
   selectedFileCount: number;
   totalFileCount: number; // Añadir totalFileCount para saber si todos están seleccionados
   toggleSelectAll: () => void; // Añadir toggleSelectAll
@@ -24,6 +24,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   selectedFileCount,
   totalFileCount,
   toggleSelectAll,
+  context = 'standalone',
 }) => {
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -48,14 +49,14 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         />
         <label
           htmlFor="file-upload"
-          className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer transition-colors"
+          className="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer transition-colors"
           title="Cargar imágenes o archivos ZIP"
         >
           <Plus className="w-4 h-4 mr-2" /> Cargar Archivos
         </label>
         <button
           onClick={clearGallery}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-700 dark:text-white dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+          className="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-700 dark:text-white dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
           title="Limpiar toda la galería"
         >
           <X className="w-4 h-4 mr-2" /> Limpiar Todo
@@ -63,7 +64,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         {totalFileCount > 0 && (
           <button
             onClick={toggleSelectAll}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
             title={allSelected ? "Deseleccionar todos" : "Seleccionar todos"}
           >
             {allSelected ? <CheckSquare className="w-4 h-4 mr-2" /> : <Square className="w-4 h-4 mr-2" />}
@@ -89,7 +90,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             ${filters.invert ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'}`}
           title="Alternar Invertir Colores"
         >
-          <Palette className="w-4 h-4" /> {/* Usando Palette como icono para invertir */}
+          <Palette className="w-4 h-4" />
         </button>
         <button
           onClick={() => toggleFilter('grayscale')}
@@ -97,7 +98,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             ${filters.grayscale ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'}`}
           title="Alternar Escala de Grises"
         >
-          <Pipette className="w-4 h-4" /> {/* Usando Pipette como icono para grayscale */}
+          <Pipette className="w-4 h-4" />
         </button>
       </div>
 
@@ -106,7 +107,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         {onInjectCodes && selectedFileCount > 0 && (
           <button
             onClick={onInjectCodes} // Llama directamente a onInjectCodes (ya preparada en LabelViewer)
-            className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
             title="Usar códigos de barra seleccionados"
           >
             <ScanSearch className="w-4 h-4 mr-2" /> Usar Códigos ({selectedFileCount})

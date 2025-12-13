@@ -267,7 +267,11 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
         title="Importar Códigos de Barra"
         size="large" // Asegura que el modal sea grande para el LabelViewer
       >
-        <LabelViewer onInjectCodes={handleInjectCodes} onClose={() => setShowLabelViewerModal(false)} />
+        <LabelViewer
+          context="modal"
+          onInjectCodes={handleInjectCodes}
+          onClose={() => setShowLabelViewerModal(false)}
+        />
       </Modal>
     </div>
   );
