@@ -3,9 +3,10 @@
 import React, { useCallback, useState } from 'react';
 import { useLabelViewerFiles } from '@/presentation/hooks/useLabelViewerFiles';
 import { DropOverlay } from './DropOverlay';
-import { Toolbar } from './Toolbar'; // Será creado en el siguiente paso
+import { Toolbar } from './Toolbar';
 import { CodeCard } from './CodeCard';
 import { EmptyState } from './EmptyState';
+import { Toast } from '../../utils/Toast'; // Importar Toast
 
 interface LabelViewerProps {
   onInjectCodes?: (codes: string[]) => void;
@@ -46,6 +47,8 @@ export const LabelViewer: React.FC<LabelViewerProps> = ({ onInjectCodes, onClose
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       loadFiles(e.dataTransfer.files, 'add');
       e.dataTransfer.clearData();
+    } else {
+      Toast.error('No se pudieron obtener los archivos del evento drop.');
     }
   }, [loadFiles]);
 
@@ -96,19 +99,6 @@ export const LabelViewer: React.FC<LabelViewerProps> = ({ onInjectCodes, onClose
           </div>
         )}
       </div>
-
-      {/* Footer para el botón de inyección de códigos si se usa como modal */}
-      {/* Este footer ahora está integrado en el Toolbar o se controla desde allí */}
-      {/* onInjectCodes && selectedFiles.size > 0 && (
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-          <button
-            onClick={() => onInjectCodes(Array.from(selectedFiles))}
-            className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-          >
-            Usar Códigos ({selectedFiles.size})
-          </button>
-        </div>
-      ) */}
     </div>
   );
 };
