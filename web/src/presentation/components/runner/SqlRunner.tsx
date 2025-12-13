@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from 'react';
 import { useSqlRunner } from '@/presentation/hooks/useSqlRunner';
 import { useProfiles } from '@/presentation/hooks/useProfiles';
 import { Clipboard, Play } from 'lucide-react';
@@ -28,6 +29,7 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
   } = useSqlRunner(workspaceId);
 
   const { profiles, loading: profilesLoading } = useProfiles(workspaceId);
+  const [profileWarning, setProfileWarning] = useState<string | null>(null);
 
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
   const contextParams = selectedTemplate?.parameters.filter((p) => !p.isBatchParam) ?? [];
@@ -35,6 +37,38 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
   const hasBatchParam = Boolean(selectedTemplate?.parameters.some((p) => p.isBatchParam));
   const hasBatchValues = inputData.trim().length > 0;
   const showLoopToggle = hasBatchParam && hasBatchValues;
+
+  const allowedProfiles = useMemo(() => {
+    const allowedIds = selectedTemplate?.allowedProfileIds ?? [];
+    if (!allowedIds || allowedIds.length === 0) return profiles;
+    return profiles.filter((p) => allowedIds.includes(p.id));
+  }, [profiles, selectedTemplate]);
+
+  useEffect(() => {
+    if (!selectedTemplate) {
+      setProfileWarning(null);
+      return;
+    }
+    const isAllowed =
+      !selectedProfileId ||
+      allowedProfiles.some((p) => p.id === selectedProfileId);
+
+    if (!isAllowed) {
+      const nextProfileId = allowedProfiles[0]?.id ?? '';
+      setSelectedProfileId(nextProfileId);
+      setProfileWarning(
+        'El perfil previamente seleccionado no está permitido para este Template. Selecciona uno de la lista.'
+      );
+    } else {
+      setProfileWarning(null);
+    }
+  }, [allowedProfiles, selectedProfileId, selectedTemplate, setSelectedProfileId]);
+
+  useEffect(() => {
+    if (!selectedProfileId && allowedProfiles.length === 1) {
+      setSelectedProfileId(allowedProfiles[0].id);
+    }
+  }, [allowedProfiles, selectedProfileId, setSelectedProfileId]);
 
   const inputClasses =
     "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-2 px-3 text-gray-900 dark:text-gray-100 shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6";
@@ -56,14 +90,17 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
             disabled={profilesLoading}
           >
             <option value="">{profilesLoading ? 'Loading...' : 'Select a profile'}</option>
-            {availableProfiles.map((p) => (
+            {allowedProfiles.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>
           {selectedTemplate?.allowedProfileIds && selectedTemplate.allowedProfileIds.length > 0 && (
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-              Mostrando {availableProfiles.length} de {profiles.length} perfiles (Restringido por Template)
+              Mostrando {allowedProfiles.length} de {profiles.length} perfiles (Restringido por Template)
             </p>
+          )}
+          {profileWarning && (
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">{profileWarning}</p>
           )}
         </div>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-2">
