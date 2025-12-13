@@ -8,9 +8,10 @@ import { ScriptTemplate } from '@/core/domain/entities/ScriptTemplate';
 import { useProfiles } from './useProfiles';
 import { ExecutionLog } from '@/core/domain/entities/ExecutionLog';
 import { LogExecutionUseCase } from '@/core/use-cases/logs/LogExecutionUseCase';
+import { DeleteLogUseCase } from '@/core/use-cases/logs/DeleteLogUseCase';
 
 export const useSqlRunner = (workspaceId: string) => {
-  const { scriptGenerator, templateRepo, executionLogRepo } = useDi();
+  const { scriptGenerator, templateRepo, executionLogRepo, deleteLogUseCase } = useDi();
   
   const [selectedProfileId, setSelectedProfileId] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
@@ -27,6 +28,7 @@ export const useSqlRunner = (workspaceId: string) => {
 
   const getTemplatesUseCase = useMemo(() => new GetTemplatesByWorkspaceUseCase(templateRepo), [templateRepo]);
   const logExecutionUseCase = useMemo(() => new LogExecutionUseCase(executionLogRepo), [executionLogRepo]);
+  const deleteLog = useMemo(() => deleteLogUseCase, [deleteLogUseCase]);
 
   const reloadTemplates = useCallback(async () => {
     if (!workspaceId) return;
@@ -137,11 +139,21 @@ export const useSqlRunner = (workspaceId: string) => {
           templateId: selectedTemplate.id,
           rawInput: inputData,
           contextValues,
+          useLoopMode,
         });
         setLogReloadKey(key => key + 1);
       }
     } catch (err) {
       console.error('Failed to copy and log execution:', err);
+    }
+  };
+
+  const handleDeleteLog = async (id: string) => {
+    try {
+      await deleteLog.execute(id);
+      setLogReloadKey(key => key + 1);
+    } catch (err) {
+      console.error('Failed to delete log:', err);
     }
   };
 
@@ -161,13 +173,15 @@ export const useSqlRunner = (workspaceId: string) => {
     handleContextChange,
     setUseLoopMode,
     copyToClipboard,
+    handleDeleteLog,
     restoreStateFromLog: (log: ExecutionLog) => {
       setIsRestoring(true);
       setSelectedProfileId(log.profileId);
       setSelectedTemplateId(log.templateId);
-      setInputData(log.rawInput);
+    setInputData(log.rawInput);
       setContextValues((log.contextValues as Record<string, string | number | boolean>) || {});
       setPendingContextValues((log.contextValues as Record<string, string | number | boolean>) || {});
+      setUseLoopMode(log.useLoopMode ?? false);
     },
     reloadLogs: () => setLogReloadKey(key => key + 1),
     logReloadKey,

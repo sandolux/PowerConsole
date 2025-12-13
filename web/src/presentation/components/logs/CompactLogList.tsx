@@ -9,10 +9,11 @@ import { useProfiles } from "@/presentation/hooks/useProfiles";
 interface CompactLogListProps {
   workspaceId: string;
   onRestore: (log: ExecutionLog) => void;
+  onDelete: (id: string) => void;
   reloadSignal?: number;
 }
 
-export const CompactLogList = ({ workspaceId, onRestore, reloadSignal = 0 }: CompactLogListProps) => {
+export const CompactLogList = ({ workspaceId, onRestore, onDelete, reloadSignal = 0 }: CompactLogListProps) => {
   const { logs, reload } = useLogs(workspaceId);
   const { templates } = useTemplates(workspaceId);
   const { profiles } = useProfiles(workspaceId);
@@ -38,6 +39,7 @@ export const CompactLogList = ({ workspaceId, onRestore, reloadSignal = 0 }: Com
               <th className="px-3 py-2 text-left">Template</th>
               <th className="px-3 py-2 text-left">Perfil</th>
               <th className="px-3 py-2 text-left">Resumen</th>
+              <th className="px-2 py-2 text-right w-10"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -53,11 +55,23 @@ export const CompactLogList = ({ workspaceId, onRestore, reloadSignal = 0 }: Com
                 <td className="px-3 py-2 text-slate-700">{findTemplateName(log.templateId)}</td>
                 <td className="px-3 py-2 text-slate-700">{findProfileName(log.profileId)}</td>
                 <td className="px-3 py-2 text-slate-600">{log.summary}</td>
+                <td className="px-2 py-2 text-right">
+                  <button
+                    className="text-slate-400 hover:text-red-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(log.id);
+                    }}
+                    aria-label="Eliminar log"
+                  >
+                    🗑️
+                  </button>
+                </td>
               </tr>
             ))}
             {logs.length === 0 && (
               <tr>
-                <td className="px-3 py-4 text-sm text-slate-500" colSpan={4}>
+                <td className="px-3 py-4 text-sm text-slate-500" colSpan={5}>
                   No hay ejecuciones recientes.
                 </td>
               </tr>

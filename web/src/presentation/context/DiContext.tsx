@@ -11,6 +11,7 @@ import { IScriptGenerator } from '@/core/domain/services/IScriptGenerator';
 import { SqlParserService } from '@/core/services/SqlParserService';
 import { ICryptoService } from '../../core/repositories/ICryptoService';
 import { IExecutionLogRepository } from '../../core/repositories/IExecutionLogRepository';
+import { DeleteLogUseCase } from '@/core/use-cases/logs/DeleteLogUseCase';
 
 // 2. Import Implementations (Adapters from Infrastructure)
 import { DexieWorkspaceRepository } from '../../infrastructure/repositories/DexieWorkspaceRepository';
@@ -31,9 +32,12 @@ export interface AppDependencies {
   scriptGenerator: IScriptGenerator;
   sqlParser: SqlParserService;
   executionLogRepo: IExecutionLogRepository;
+  deleteLogUseCase: DeleteLogUseCase;
 }
 
 // 4. Instantiate concrete implementations to be injected
+const executionLogRepoInstance = new DexieExecutionLogRepository();
+
 const appDependencies: AppDependencies = {
   workspaceRepo: new DexieWorkspaceRepository(),
   profileRepo: new DexieProfileRepository(),
@@ -42,7 +46,8 @@ const appDependencies: AppDependencies = {
   cryptoService: new SimpleCryptoService(),
   scriptGenerator: new SqlScriptGeneratorService(),
   sqlParser: new SqlParserService(),
-  executionLogRepo: new DexieExecutionLogRepository(),
+  executionLogRepo: executionLogRepoInstance,
+  deleteLogUseCase: new DeleteLogUseCase(executionLogRepoInstance),
 };
 
 // 5. Create the React Context

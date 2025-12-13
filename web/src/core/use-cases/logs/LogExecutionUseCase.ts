@@ -12,6 +12,7 @@ interface LogExecutionInput {
   rawInput: string;
   contextValues: Record<string, any>;
   workspaceId: string;
+  useLoopMode: boolean;
 }
 
 export class LogExecutionUseCase {
@@ -31,6 +32,7 @@ export class LogExecutionUseCase {
       rawInput: input.rawInput,
       contextValues: input.contextValues,
       workspaceId: input.workspaceId,
+      useLoopMode: input.useLoopMode,
     };
 
     await this.executionLogRepository.save(log);

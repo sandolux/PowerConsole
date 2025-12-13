@@ -24,6 +24,7 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
     copyToClipboard,
     restoreStateFromLog,
     logReloadKey,
+    handleDeleteLog,
   } = useSqlRunner(workspaceId);
 
   const { profiles, loading: profilesLoading } = useProfiles(workspaceId);
@@ -200,7 +201,12 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
 
       <div className="border-t border-slate-200 pt-3">
         <p className="text-xs uppercase tracking-wide text-slate-500 mb-2">Historial reciente</p>
-        <CompactLogList workspaceId={workspaceId} onRestore={restoreStateFromLog} reloadSignal={logReloadKey} />
+        <CompactLogList
+          workspaceId={workspaceId}
+          onRestore={restoreStateFromLog}
+          onDelete={handleDeleteLog}
+          reloadSignal={logReloadKey}
+        />
       </div>
     </div>
   );

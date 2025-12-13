@@ -14,4 +14,8 @@ export class DexieExecutionLogRepository implements IExecutionLogRepository {
   async getByWorkspaceId(workspaceId: string): Promise<ExecutionLog[]> {
     return db.executionLogs.where({ workspaceId }).reverse().sortBy('timestamp');
   }
+
+  async delete(id: string): Promise<void> {
+    await db.executionLogs.delete(id);
+  }
 }

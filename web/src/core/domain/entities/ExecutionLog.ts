@@ -11,4 +11,5 @@ export interface ExecutionLog {
   templateId: string;
   rawInput: string;
   contextValues: Record<string, any>;
+  useLoopMode: boolean;
 }
