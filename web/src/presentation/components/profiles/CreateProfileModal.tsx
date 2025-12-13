@@ -103,8 +103,8 @@ export const CreateProfileModal = ({
     }
   };
 
-  const inputClasses = "block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6";
-  const labelClasses = "block text-sm font-medium text-slate-700 mb-1";
+  const inputClasses = "w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg p-2.5 transition-colors focus:border-indigo-500";
+  const labelClasses = "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1";
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={isEditMode ? "Editar Perfil" : "Crear Nuevo Perfil"}>
@@ -175,7 +175,7 @@ export const CreateProfileModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700/50"
           >
             Cancelar
           </button>

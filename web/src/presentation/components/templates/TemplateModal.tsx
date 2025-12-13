@@ -150,22 +150,23 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
       setLoading(false);
     }
   };
-  const inputClasses = "block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6";
-  const labelClasses = "block text-sm font-medium text-slate-700 mb-1";
+  const inputClasses =
+    "w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg p-2 transition-colors";
+  const labelClasses = "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1";
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={isEditMode ? 'Edit Script Template' : 'New Script Template'}>
       <form onSubmit={handleSubmit} className="flex flex-col h-full">
-        <div className="flex-1 overflow-y-auto max-h-[70vh] p-4"> {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto max-h-[70vh] p-6 space-y-4 bg-white dark:bg-gray-800 rounded-lg"> {/* Scrollable content */}
           {/* Section 1: Smart Import */}
-          <div className="mb-6 pb-6 border-b border-slate-200">
+          <div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
             <label htmlFor="rawSqlInput" className={labelClasses}>Paste SQL for Smart Import</label>
             <textarea
               id="rawSqlInput"
               rows={4} // Reduced height
               value={rawSqlInput}
               onChange={(e) => setRawSqlInput(e.target.value)}
-              className={`${inputClasses} font-mono`}
+              className="w-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-300 rounded-lg p-3 font-mono text-sm transition-colors"
               placeholder="e.g., EXEC sp_SomeStoredProcedure @Param1 = 'Value1', @Param2 = 123"
             />
             <div className="flex justify-end mt-2">
@@ -182,7 +183,7 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
 
           {/* Section 2: Basic Template Data */}
           <div className="mb-6 space-y-4">
-            <h4 className="text-md font-semibold text-slate-800">Template Details</h4>
+            <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100">Template Details</h4>
             <div className="mb-4">
               <label htmlFor="name" className={labelClasses}>Name</label>
               <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClasses} required />
@@ -198,11 +199,11 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
             <div className="mb-4">
               <label className={labelClasses}>Perfiles Permitidos (Opcional)</label>
               {profiles.length === 0 ? (
-                <p className="text-sm text-slate-500">No hay perfiles en este workspace.</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">No hay perfiles en este workspace.</p>
               ) : (
                 <div className="flex flex-col gap-2">
                   {profiles.map((profile) => (
-                    <label key={profile.id} className="inline-flex items-center gap-2 text-sm text-slate-700">
+                    <label key={profile.id} className="inline-flex items-center gap-2 text-sm text-gray-800 dark:text-gray-200">
                       <input
                         type="checkbox"
                         checked={selectedProfileIds.includes(profile.id)}
@@ -213,46 +214,46 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
                             setSelectedProfileIds(prev => prev.filter(id => id !== profile.id));
                           }
                         }}
-                        className="h-4 w-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
+                        className="h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 rounded focus:ring-indigo-500"
                       />
                       {profile.name}
                     </label>
                   ))}
                 </div>
               )}
-              <p className="text-xs text-slate-500 mt-1">Si no seleccionas ninguno, el template se podrá usar con cualquier perfil.</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Si no seleccionas ninguno, el template se podrá usar con cualquier perfil.</p>
             </div>
           </div>
 
           {/* Section 3: Parameters Table */}
           <div className="mb-6">
-            <h4 className="text-md font-semibold text-slate-800 mb-3">Parameters</h4>
+            <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100 mb-3">Parameters</h4>
             {parameters.length === 0 ? (
-              <p className="text-sm text-slate-500">No parameters detected. Paste SQL above to analyze.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">No parameters detected. Paste SQL above to analyze.</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-200">
-                  <thead className="bg-slate-50">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      <th className="px-2 py-1 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
-                      <th className="px-2 py-1 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Default Value</th>
-                      <th className="px-2 py-1 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Type</th>
-                      <th className="px-2 py-1 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Batch Param</th>
+                      <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Name</th>
+                      <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Default Value</th>
+                      <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Type</th>
+                      <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Batch Param</th>
                     </tr>
                   </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {parameters.map((param, index) => (
-                      <tr key={param.name}>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-slate-900">
-                          <input type="text" value={param.name} readOnly className={`${inputClasses} bg-slate-50 cursor-not-allowed`} />
+                      <tr key={param.name} className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td className="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                          <input type="text" value={param.name} readOnly className={`${inputClasses} bg-gray-100 dark:bg-gray-700 cursor-not-allowed`} />
                         </td>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm text-slate-500">
+                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-700 dark:text-gray-200">
                           {param.type === 'boolean' ? (
                               <input
                                   type="checkbox"
                                   checked={param.defaultValue as boolean || false}
                                   onChange={(e) => handleParameterChange(index, 'defaultValue', e.target.checked)}
-                                  className="h-4 w-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
+                                  className="h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 rounded focus:ring-indigo-500"
                               />
                           ) : (
                               <input
@@ -263,7 +264,7 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
                               />
                           )}
                         </td>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm text-slate-500">
+                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-700 dark:text-gray-200">
                           <select
                             value={param.type}
                             onChange={(e) => handleParameterChange(index, 'type', e.target.value as ScriptParameter['type'])}
@@ -275,13 +276,13 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
                             <option value="hidden">Hidden</option>
                           </select>
                         </td>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm text-slate-500 text-center">
+                        <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-700 dark:text-gray-200 text-center">
                           <input
                             type="radio"
                             name="batchParamGroup"
                             checked={param.isBatchParam || false}
                             onChange={() => handleBatchParamChange(index)}
-                            className="h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500"
+                            className="h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500"
                           />
                         </td>
                       </tr>
@@ -295,8 +296,8 @@ export const TemplateModal = ({ isOpen, onClose, onSave, templateToEdit, workspa
         </div>
 
         {/* Footer Buttons */}
-        <div className="flex justify-end gap-3 p-4 border-t border-slate-200 bg-white">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50">
+        <div className="flex justify-end gap-3 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700/50">
             Cancel
           </button>
           <button type="submit" disabled={loading} className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 disabled:bg-indigo-400">

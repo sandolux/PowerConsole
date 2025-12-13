@@ -23,12 +23,12 @@ export const BackupPanel = ({ workspaceId }: { workspaceId: string }) => {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-6">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-6">
       <div>
-        <h3 className="text-base font-semibold text-slate-800 flex items-center gap-2">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           Copia de Seguridad
         </h3>
-        <p className="text-sm text-slate-600 mt-1">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Descarga un archivo JSON con toda tu configuración (Perfiles, Templates, Logs).
         </p>
         <button
@@ -41,11 +41,11 @@ export const BackupPanel = ({ workspaceId }: { workspaceId: string }) => {
         </button>
       </div>
 
-      <div className="border-t border-slate-200 pt-4">
-        <h3 className="text-base font-semibold text-slate-800 flex items-center gap-2">
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           Restaurar Copia
         </h3>
-        <p className="text-sm text-slate-600 mt-1">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Restaura una configuración previa. Esto fusionará/sobrescribirá los datos actuales.
         </p>
         <div className="mt-3 flex items-center gap-3">
@@ -59,7 +59,7 @@ export const BackupPanel = ({ workspaceId }: { workspaceId: string }) => {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
           >
             <Upload size={16} />
             Seleccionar Archivo...

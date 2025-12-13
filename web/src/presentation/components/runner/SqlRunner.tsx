@@ -36,14 +36,15 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
   const hasBatchValues = inputData.trim().length > 0;
   const showLoopToggle = hasBatchParam && hasBatchValues;
 
-  const inputClasses = "block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6";
-  const labelClasses = "block text-sm font-medium text-slate-700 mb-1";
+  const inputClasses =
+    "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-2 px-3 text-gray-900 dark:text-gray-100 shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6";
+  const labelClasses = "block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1";
   
   return (
     <div className="flex flex-col gap-4 h-full">
       {/* Top Bar */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-2">
           <label htmlFor="profile" className={labelClasses}>
             Connection Profile
           </label>
@@ -60,12 +61,12 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
             ))}
           </select>
           {selectedTemplate?.allowedProfileIds && selectedTemplate.allowedProfileIds.length > 0 && (
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
               Mostrando {availableProfiles.length} de {profiles.length} perfiles (Restringido por Template)
             </p>
           )}
         </div>
-        <div>
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-2">
           <label htmlFor="template" className={labelClasses}>
             Script Template
           </label>
@@ -85,7 +86,7 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
             )}
           </select>
           {templates.length === 0 && (
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                 No hay templates definidos. Ve a la pestaña{' '}
                 <a href="#" onClick={() => {/* TODO: Navigate to Templates tab */}} className="text-indigo-600 hover:underline">Templates</a>{' '}
                 para crear uno.
@@ -97,28 +98,28 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
       {/* Main Area - 3-column responsive layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
         {/* Área 1: Input */}
-        <div className="space-y-2">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-2">
           <div className="flex items-center justify-between">
             <label htmlFor="input-data" className={labelClasses}>
               Input Data (Codes/Params)
             </label>
-            <span className="text-xs text-slate-500">Ingresa valores para {batchParamName}</span>
+            <span className="text-xs text-gray-600 dark:text-gray-400">Ingresa valores para {batchParamName}</span>
           </div>
           <textarea
             id="input-data"
             rows={16}
             value={inputData}
             onChange={(e) => setInputData(e.target.value)}
-            className="font-mono p-4 rounded-md w-full h-96 block border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="font-mono p-4 rounded-md w-full h-96 block bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             placeholder="Pega tu lista de códigos aquí, uno por línea..."
           />
         </div>
 
         {/* Área 2: Configuración de Contexto */}
-        <div className="space-y-3 border border-slate-200 rounded-lg p-4 bg-white">
-          <h4 className="text-sm font-semibold text-slate-800">Configuración de Ejecución</h4>
+        <div className="space-y-3 border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Configuración de Ejecución</h4>
           {contextParams.length === 0 && (
-            <p className="text-sm text-slate-500">No hay parámetros de contexto (todos son batch o no existen).</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">No hay parámetros de contexto (todos son batch o no existen).</p>
           )}
           {contextParams.map((param) => {
             const isIxDesp = param.name.toLowerCase() === '@ix_desp';
@@ -153,7 +154,7 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
         </div>
 
         {/* Área 3: Output */}
-        <div>
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-2">
           <label htmlFor="generated-script" className={labelClasses}>
             Script Generado
           </label>
@@ -162,21 +163,21 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
             rows={16}
             value={generatedScript}
             readOnly
-            className="font-mono p-4 rounded-md w-full h-96 block bg-slate-900 text-green-400 border-slate-700 shadow-sm sm:text-sm"
+            className="font-mono p-4 rounded-md w-full h-96 block bg-gray-900 text-green-400 border border-gray-700 shadow-sm sm:text-sm"
             placeholder="-- El SQL generado aparecerá aquí..."
           />
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="flex justify-end items-center gap-3 pt-4 border-t border-slate-200">
+      <div className="flex justify-end items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
         {showLoopToggle && (
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
             <input
               type="checkbox"
               checked={useLoopMode}
               onChange={(e) => setUseLoopMode(e.target.checked)}
-              className="h-4 w-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
+              className="h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 rounded focus:ring-indigo-500"
             />
             Usar modo bucle (cursor)
           </label>
@@ -184,7 +185,7 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
         <button 
             onClick={copyToClipboard}
             type="button"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
         >
             <Clipboard size={16} />
             Copy to Clipboard
@@ -192,15 +193,15 @@ export const SqlRunner = ({ workspaceId }: { workspaceId: string }) => {
         <button
             onClick={handleGenerate}
             type="button"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-700 bg-white border border-indigo-200 rounded-lg hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-200 bg-white dark:bg-gray-700 border border-indigo-200 dark:border-indigo-500 rounded-lg hover:bg-indigo-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
             <Play size={16} />
             Actualizar ahora
         </button>
       </div>
 
-      <div className="border-t border-slate-200 pt-3">
-        <p className="text-xs uppercase tracking-wide text-slate-500 mb-2">Historial reciente</p>
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+        <p className="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-400 mb-2">Historial reciente</p>
         <CompactLogList
           workspaceId={workspaceId}
           onRestore={restoreStateFromLog}

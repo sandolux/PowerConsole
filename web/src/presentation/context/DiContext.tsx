@@ -24,6 +24,7 @@ import { DexieExecutionLogRepository } from '../../infrastructure/repositories/D
 import { BackupService } from '@/core/services/BackupService';
 import { ExportWorkspaceUseCase } from '@/core/use-cases/backup/ExportWorkspaceUseCase';
 import { ImportWorkspaceUseCase } from '@/core/use-cases/backup/ImportWorkspaceUseCase';
+import { GetWorkspaceStatsUseCase } from '@/core/use-cases/stats/GetWorkspaceStatsUseCase';
 
 // 3. Define the shape of the dependencies object
 export interface AppDependencies {
@@ -39,6 +40,7 @@ export interface AppDependencies {
   backupService: BackupService;
   exportWorkspaceUseCase: ExportWorkspaceUseCase;
   importWorkspaceUseCase: ImportWorkspaceUseCase;
+  getWorkspaceStatsUseCase: GetWorkspaceStatsUseCase;
 }
 
 // 4. Instantiate concrete implementations to be injected
@@ -68,6 +70,12 @@ const appDependencies: AppDependencies = {
   backupService: backupServiceInstance,
   exportWorkspaceUseCase: new ExportWorkspaceUseCase(backupServiceInstance),
   importWorkspaceUseCase: new ImportWorkspaceUseCase(backupServiceInstance),
+  getWorkspaceStatsUseCase: new GetWorkspaceStatsUseCase(
+    executionLogRepoInstance,
+    templateRepoInstance,
+    profileRepoInstance,
+    variableRepoInstance
+  ),
 };
 
 // 5. Create the React Context

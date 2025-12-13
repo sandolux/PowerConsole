@@ -7,6 +7,7 @@ import { VariableList } from "@/presentation/components/variables/VariableList";
 import { SqlRunner } from "@/presentation/components/runner/SqlRunner";
 import { TemplateList } from "@/presentation/components/templates/TemplateList";
 import { BackupPanel } from "@/presentation/components/settings/BackupPanel";
+import { DashboardStats } from "@/presentation/components/stats/DashboardStats";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -46,12 +47,12 @@ export default function WorkspaceDetailPage() {
 
   return (
     <AppLayout>
-      <div className="bg-slate-50 dark:bg-gray-950 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+      <div className="bg-gray-50 dark:bg-gray-950 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
         <header className="flex items-center justify-between">
           <div className="flex flex-col">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors mb-2"
+              className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors mb-4"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Volver al Dashboard</span>
@@ -87,17 +88,13 @@ export default function WorkspaceDetailPage() {
             ))}
           </div>
 
-          <div className="mt-4">
+          <div className="mt-4 bg-gray-50 dark:bg-gray-950">
             {activeSection === "profiles" && <ProfileList workspaceId={id} />}
             {activeSection === "variables" && <VariableList workspaceId={id} />}
             {activeSection === "templates" && <TemplateList workspaceId={id} />}
             {activeSection === "runner" && <SqlRunner workspaceId={id} />}
             {activeSection === "settings" && <BackupPanel workspaceId={id} />}
-            {activeSection === "summary" && (
-              <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm">
-                <p className="text-slate-500 dark:text-slate-400">Resumen próximamente.</p>
-              </div>
-            )}
+            {activeSection === "summary" && <DashboardStats workspaceId={id} />}
             {activeSection === "logs" && (
               <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm" id="logs">
                 <p className="text-slate-500 dark:text-slate-400">Historial / Logs integrados dentro del Runner.</p>

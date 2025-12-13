@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from 'react';
-import { useVariables } from '@/presentation/hooks/useVariables';
-import { WorkspaceVariable } from '@/core/domain/entities/WorkspaceVariable';
-import { VariableModal } from './VariableModal';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { useState } from "react";
+import { useVariables } from "@/presentation/hooks/useVariables";
+import { WorkspaceVariable } from "@/core/domain/entities/WorkspaceVariable";
+import { VariableModal } from "./VariableModal";
+import { Plus } from "lucide-react";
+import { VariableCard } from "./VariableCard";
 
 export const VariableList = ({ workspaceId }: { workspaceId: string }) => {
   const { variables, loading, error, saveVariable, deleteVariable } = useVariables(workspaceId);
@@ -42,27 +43,19 @@ export const VariableList = ({ workspaceId }: { workspaceId: string }) => {
       {error && <p className="text-red-500">{error}</p>}
 
       {!loading && !error && (
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm">
-          <ul role="list" className="divide-y divide-slate-200">
-            {variables.map((variable) => (
-              <li key={variable.id} className="flex items-center justify-between p-4">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-900 font-mono">{variable.key}</p>
-                  <p className="text-sm text-slate-500 truncate mt-1">{variable.value}</p>
-                </div>
-                <div className="flex items-center gap-2 ml-4">
-                  <button onClick={() => handleOpenModal(variable)} className="p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-50">
-                    <Pencil size={16} />
-                  </button>
-                  <button onClick={() => handleDelete(variable.id)} className="p-2 text-slate-500 hover:text-red-600 rounded-full hover:bg-red-50">
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-           {variables.length === 0 && (
-            <p className="text-center text-slate-500 py-10">No variables defined.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+          {variables.map((variable) => (
+            <VariableCard
+              key={variable.id}
+              variable={variable}
+              onEdit={handleOpenModal}
+              onDelete={handleDelete}
+            />
+          ))}
+          {variables.length === 0 && (
+            <p className="col-span-full text-center text-slate-500 dark:text-gray-400 py-10">
+              No variables defined.
+            </p>
           )}
         </div>
       )}
