@@ -198,5 +198,7 @@ export const useSqlRunner = (workspaceId: string) => {
     },
     reloadLogs: () => setLogReloadKey(key => key + 1),
     logReloadKey,
+    logExecutionUseCase, // Export logExecutionUseCase
+    deleteLog, // Export deleteLog
   };
 };

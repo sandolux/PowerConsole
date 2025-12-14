@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation"; // Importar useSearchParams
+import { useSqlRunnerModal } from "../../context/SqlRunnerModalContext"; // Import useSqlRunnerModal
 import {
   Home,
   Settings,
@@ -29,6 +30,7 @@ export const Sidebar = ({}: SidebarProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentSectionParam = searchParams.get("section");
+  const { openSqlRunnerModal } = useSqlRunnerModal();
 
   // Determina si estamos en una ruta de workspace
   const isInWorkspace = pathname.startsWith('/workspace/') && pathname.split('/').length > 2;
@@ -98,16 +100,16 @@ export const Sidebar = ({}: SidebarProps) => {
       href: `/workspace/${currentWorkspaceId}?section=variables`,
     },
     {
-      id: "templates",
-      name: "Templates",
-      icon: <FileCode size={16} />,
-      href: `/workspace/${currentWorkspaceId}?section=templates`,
+      id: "generator", // Renamed from "runner"
+      name: "SQL Generator", // Renamed from "SQL Runner"
+      icon: <FileCode size={16} />, // Icon for generator
+      href: `/workspace/${currentWorkspaceId}?section=runner`, // This href leads to SqlGenerator
     },
     {
-      id: "runner",
-      name: "SQL Runner",
-      icon: <Terminal size={16} />,
-      href: `/workspace/${currentWorkspaceId}?section=runner`,
+      id: "sql-runner-modal", // New item for opening the modal
+      name: "SQL Runner", // New text
+      icon: <Terminal size={16} />, // Icon for runner
+      onClick: openSqlRunnerModal, // Action to open the modal
     },
     {
       id: "logs",
@@ -151,14 +153,25 @@ export const Sidebar = ({}: SidebarProps) => {
           </div>
         )}
         {itemsToRender.map((item) => (
-          <Link
-            key={item.id}
-            href={item.href}
-            className={`${baseLink} ${isActive(item.href, item.id) ? active : inactive}`}
-          >
-            {item.icon}
-            {item.name}
-          </Link>
+          item.href ? (
+            <Link
+              key={item.id}
+              href={item.href}
+              className={`${baseLink} ${isActive(item.href, item.id) ? active : inactive}`}
+            >
+              {item.icon}
+              {item.name}
+            </Link>
+          ) : (
+            <button
+              key={item.id}
+              onClick={() => item.onClick?.()}
+              className={`${baseLink} ${inactive} w-full text-left`} // Modificado para botón
+            >
+              {item.icon}
+              {item.name}
+            </button>
+          )
         ))}
       </nav>
 
