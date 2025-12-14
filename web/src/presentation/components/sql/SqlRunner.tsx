@@ -61,15 +61,15 @@ export const SqlRunner: React.FC<SqlRunnerProps> = ({ isOpen, onClose, title, in
         <h2 className="text-sm font-semibold text-white">{title}</h2>
         <div className="flex items-center gap-2">
           {isExecuting ? (
-            <span className="inline-flex items-center rounded-full bg-gray-800 border border-gray-700 px-2 py-1 text-xs font-medium text-blue-400 gap-1">
-              <span className="block w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-full px-3 py-1 text-blue-400 text-xs">
+              <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
               Ejecutando...
-            </span>
+            </div>
           ) : (
-            <span className="inline-flex items-center rounded-full bg-gray-800 border border-gray-700 px-2 py-1 text-xs font-medium text-green-400 gap-1">
-              <span className="block w-2 h-2 rounded-full bg-green-500"></span>
-              Listo
-            </span>
+            <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-full px-3 py-1 text-green-400 text-xs">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              SQL Runner
+            </div>
           )}
           <button
             onClick={onClose}
@@ -84,8 +84,8 @@ export const SqlRunner: React.FC<SqlRunnerProps> = ({ isOpen, onClose, title, in
       {/* Main Split View Body */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel: SQL Editor */}
-        <div className="flex flex-col flex-1 border-r border-gray-700 bg-gray-900">
-          <div className="p-2 px-4 bg-gray-800 border-b border-gray-700 text-gray-400 text-xs font-semibold uppercase flex justify-between items-center">
+        <div className="flex flex-col flex-1 border-r border-gray-700 bg-gray-950">
+          <div className="py-2 px-4 bg-gray-800 border-b border-gray-700 text-gray-400 text-xs font-semibold uppercase flex justify-between items-center">
             <span>SQL Editor</span>
             <button
               type="button"
@@ -107,7 +107,7 @@ export const SqlRunner: React.FC<SqlRunnerProps> = ({ isOpen, onClose, title, in
 
         {/* Right Panel: Console Output */}
         <div className="flex flex-col flex-1 bg-black">
-          <div className="p-2 px-4 bg-gray-800 border-b border-gray-700 text-gray-400 text-xs font-semibold uppercase">
+          <div className="py-2 px-4 bg-gray-800 border-b border-gray-700 text-gray-400 text-xs font-semibold uppercase flex items-center">
             Console Output
           </div>
           <TerminalOutput response={executionResult} isExecuting={isExecuting} />

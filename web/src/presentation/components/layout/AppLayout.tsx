@@ -5,11 +5,19 @@ import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { useAuth } from "@/presentation/hooks/useAuth";
+import { useSqlRunnerModal } from "@/presentation/context/SqlRunnerModalContext";
+import { SqlRunner } from "@/presentation/components/sql/SqlRunner";
 
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const {
+    isSqlRunnerModalOpen,
+    closeSqlRunnerModal,
+    modalInitialScript,
+    modalProfileId,
+  } = useSqlRunnerModal();
 
   useEffect(() => {
     if (isLoading) return;
@@ -31,6 +39,13 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
           {children}
         </div>
       </main>
+      <SqlRunner
+        isOpen={isSqlRunnerModalOpen}
+        onClose={closeSqlRunnerModal}
+        title="SQL Runner"
+        initialScript={modalInitialScript}
+        profileId={modalProfileId}
+      />
     </div>
   );
 };

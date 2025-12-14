@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation"; // Importar useSearchParams
-import { useSqlRunnerModal } from "../../context/SqlRunnerModalContext"; // Import useSqlRunnerModal
+import { usePathname, useSearchParams } from "next/navigation";
+import { useSqlRunnerModal } from "../../context/SqlRunnerModalContext";
 import {
   Home,
   Settings,
@@ -12,12 +12,9 @@ import {
   Layers,
   ScanBarcode,
 } from "lucide-react";
+import { useProfiles } from "@/presentation/hooks/useProfiles";
 
-interface SidebarProps {
-  // Ya no se necesitan context ni workspaceId como props directas para la lógica de visualización,
-  // se obtendrán del pathname.
-  // Pero se mantienen para `AppLayout` si los necesita.
-}
+interface SidebarProps {}
 
 const baseLink =
   "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors";
@@ -32,21 +29,18 @@ export const Sidebar = ({}: SidebarProps) => {
   const currentSectionParam = searchParams.get("section");
   const { openSqlRunnerModal } = useSqlRunnerModal();
 
-  // Determina si estamos en una ruta de workspace
   const isInWorkspace = pathname.startsWith('/workspace/') && pathname.split('/').length > 2;
   const currentWorkspaceId = isInWorkspace ? pathname.split('/')[2] : undefined;
+  
+  const { profiles } = useProfiles(currentWorkspaceId || '');
 
-  // Lógica de resaltado para los ítems del sidebar
   const isActive = (itemHref: string, itemId: string) => {
-    // Para rutas globales (Home, Settings)
     if (!isInWorkspace && itemHref === pathname) {
       return true;
     }
-    // Para el Dashboard del workspace
     if (itemId === "dashboard" && pathname === `/workspace/${currentWorkspaceId}` && (!currentSectionParam || currentSectionParam === 'summary')) {
       return true;
     }
-    // Para ítems de sección dentro del workspace
     if (
       isInWorkspace &&
       pathname === `/workspace/${currentWorkspaceId}` &&
@@ -57,7 +51,14 @@ export const Sidebar = ({}: SidebarProps) => {
     return false;
   };
 
-  // Array de ítems de navegación global
+  const handleOpenSqlRunner = () => {
+    if (profiles.length > 0) {
+      openSqlRunnerModal('', profiles[0].id);
+    } else {
+      alert('No connection profiles found for this workspace. Please create a profile first.');
+    }
+  };
+
   const globalNavItems = [
     {
       id: "home",
@@ -73,7 +74,6 @@ export const Sidebar = ({}: SidebarProps) => {
     },
   ];
 
-  // Array de ítems de navegación para el workspace
   const workspaceNavItems = [
     {
       id: "dashboard",
@@ -100,16 +100,16 @@ export const Sidebar = ({}: SidebarProps) => {
       href: `/workspace/${currentWorkspaceId}?section=variables`,
     },
     {
-      id: "generator", // Renamed from "runner"
-      name: "SQL Generator", // Renamed from "SQL Runner"
-      icon: <FileCode size={16} />, // Icon for generator
-      href: `/workspace/${currentWorkspaceId}?section=runner`, // This href leads to SqlGenerator
+      id: "generator",
+      name: "SQL Generator",
+      icon: <FileCode size={16} />,
+      href: `/workspace/${currentWorkspaceId}?section=runner`,
     },
     {
-      id: "sql-runner-modal", // New item for opening the modal
-      name: "SQL Runner", // New text
-      icon: <Terminal size={16} />, // Icon for runner
-      onClick: openSqlRunnerModal, // Action to open the modal
+      id: "sql-runner-modal",
+      name: "SQL Runner",
+      icon: <Terminal size={16} />,
+      onClick: handleOpenSqlRunner,
     },
     {
       id: "logs",
@@ -131,9 +131,8 @@ export const Sidebar = ({}: SidebarProps) => {
     },
   ];
 
-  // Determinar qué ítems renderizar
   const itemsToRender = isInWorkspace ? workspaceNavItems : globalNavItems;
-  const currentContextTitle = isInWorkspace ? "Proyecto Actual" : ""; // "PowerConsole" es el título de la app
+  const currentContextTitle = isInWorkspace ? "Proyecto Actual" : "";
 
   return (
     <aside className="w-64 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 fixed left-0 top-0 flex flex-col">
@@ -166,7 +165,7 @@ export const Sidebar = ({}: SidebarProps) => {
             <button
               key={item.id}
               onClick={() => item.onClick?.()}
-              className={`${baseLink} ${inactive} w-full text-left`} // Modificado para botón
+              className={`${baseLink} ${inactive} w-full text-left`}
             >
               {item.icon}
               {item.name}
