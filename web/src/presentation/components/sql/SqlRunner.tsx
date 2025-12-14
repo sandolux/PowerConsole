@@ -3,6 +3,11 @@ import { Modal } from '@/presentation/components/ui/Modal';
 import { TerminalOutput } from './TerminalOutput';
 import { SqlExecutionService, ExecutionResponse } from '@/core/services/SqlExecutionService';
 import { Play } from 'lucide-react';
+import { Toaster, toast } from 'react-hot-toast';
+import Editor from 'react-simple-code-editor';
+import { highlight, languages } from 'prismjs';
+import 'prismjs/components/prism-sql';
+import 'prismjs/themes/prism-tomorrow.css'; // O un tema que prefieras
 
 interface SqlRunnerProps {
   isOpen: boolean;
@@ -21,11 +26,15 @@ export const SqlRunner: React.FC<SqlRunnerProps> = ({ isOpen, onClose, title, in
 
   const handleExecuteQuery = useCallback(async () => {
     if (!scriptToExecute) {
-      setExecutionResult({ success: false, message: "No hay script para ejecutar.", data: null });
+      const msg = "No hay script para ejecutar.";
+      setExecutionResult({ success: false, message: msg, data: null });
+      toast.error(msg);
       return;
     }
     if (!profileId) {
-      setExecutionResult({ success: false, message: "No hay perfil de conexion seleccionado.", data: null });
+      const msg = "No hay perfil de conexión seleccionado.";
+      setExecutionResult({ success: false, message: msg, data: null });
+      toast.error(msg);
       return;
     }
 
@@ -35,10 +44,17 @@ export const SqlRunner: React.FC<SqlRunnerProps> = ({ isOpen, onClose, title, in
     try {
       const response = await sqlExecutionService.executeScript(scriptToExecute, profileId);
       setExecutionResult(response);
+
+      if (response.success) {
+        toast.success(`Consulta ejecutada. ${response.data ? response.data.length : 0} filas devueltas.`);
+      } else {
+        toast.error(`Error SQL: ${response.message}`);
+      }
     } catch (error) {
+      toast.error('Fallo al conectar o ejecutar la consulta.');
       setExecutionResult({
         success: false,
-        message: `Error inesperado durante la ejecucion: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        message: `Fallo al conectar o ejecutar la consulta: ${error instanceof Error ? error.message : 'Unknown error'}`,
         data: null,
       });
       console.error("Error during script execution:", error);
@@ -48,15 +64,28 @@ export const SqlRunner: React.FC<SqlRunnerProps> = ({ isOpen, onClose, title, in
   }, [scriptToExecute, profileId, sqlExecutionService]);
 
   return (
-          <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            title={null} // Set title to null to not display generic title
-            size="5xl"
-            panelClassName="h-[90vh] bg-gray-950 border border-gray-700 rounded-xl shadow-2xl flex flex-col p-0"
-            bodyClassName="mt-0 flex flex-col flex-1"
-            showHeader={false} // Disable the generic header
-          >      {/* Window Header */}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={null}
+      size="5xl"
+      panelClassName="h-[90vh] bg-gray-950 border border-gray-700 rounded-xl shadow-2xl flex flex-col p-0"
+      bodyClassName="mt-0 flex flex-col flex-1"
+      showHeader={false}
+    >
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          className: '',
+          style: {
+            border: '1px solid #713200',
+            padding: '16px',
+            color: '#FFFFFF',
+            backgroundColor: '#1c1c1c',
+          },
+        }}
+      />
+      {/* Window Header */}
       <div className="flex justify-between items-center p-3 px-5 bg-black border-b border-gray-700 text-white">
         <h2 className="text-sm font-semibold text-white">{title}</h2>
         <div className="flex items-center gap-2">
@@ -97,12 +126,19 @@ export const SqlRunner: React.FC<SqlRunnerProps> = ({ isOpen, onClose, title, in
               RUN
             </button>
           </div>
-          <textarea
-            className="flex-1 w-full bg-transparent border-none text-white p-4 font-mono text-sm resize-none outline-none"
-            value={scriptToExecute}
-            onChange={(e) => setScriptToExecute(e.target.value)}
-            placeholder="Edita tu script SQL aquí..."
-          />
+          <div className="flex-1 w-full bg-transparent text-white font-mono text-sm overflow-auto">
+            <Editor
+              value={scriptToExecute}
+              onValueChange={code => setScriptToExecute(code)}
+              highlight={code => highlight(code, languages.sql, 'sql')}
+              padding={16}
+              className="w-full h-full bg-transparent border-none text-white font-mono text-sm resize-none outline-none"
+              style={{
+                fontFamily: '"Fira Code", "Fira Mono", monospace',
+                fontSize: 14,
+              }}
+            />
+          </div>
         </div>
 
         {/* Right Panel: Console Output */}
